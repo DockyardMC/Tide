@@ -5,7 +5,7 @@ import cz.lukynka.prettylog.log
 import io.netty.buffer.Unpooled
 
 fun main() {
-    val bus = Bus("fuck do I know", listOf(Person("Maya", 23, PersonType.GAY), Person("Kev", 25, null)), true)
+    val bus = Bus("fuck do I know", listOf(Person("Maya", 23, PersonType.GAY), Person("Kev", 25, null)), true, mapOf(1 to true, 2 to false, 3 to true, 4 to false))
 
     val buffer = Unpooled.buffer()
     val json = JsonObject()
@@ -39,13 +39,14 @@ data class Class(val className: String, val studentsPresent: Map<Person, Boolean
     }
 }
 
-data class Bus(val name: String, val passengers: List<Person>, val isGonnaExplode: Boolean) {
+data class Bus(val name: String, val passengers: List<Person>, val isGonnaExplode: Boolean?, val tiresPresent: Map<Int, Boolean>) {
     companion object {
-        val codec = Codec.of(
-            Field("name", Primitives.String, Bus::name),
-            Field("passengers", Codec.list(Person.codec), Bus::passengers),
-            Field("is_gonna_explode", Primitives.Boolean, Bus::isGonnaExplode)
-        )
+        val codec = Codec.of<Bus> {
+            field("name", Primitives.String, Bus::name)
+            field("passengers", Person.codec.list(), Bus::passengers)
+            field("type", Primitives.Boolean.optional(), Bus::isGonnaExplode)
+            field("tires_present", Primitives.VarInt.mapAsKeyTo(Primitives.Boolean), Bus::tiresPresent)
+        }
     }
 }
 

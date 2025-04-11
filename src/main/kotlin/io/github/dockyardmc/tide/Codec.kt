@@ -1,7 +1,6 @@
 package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
@@ -17,9 +16,30 @@ interface Codec<T> {
         writeJson(json, value, "")  // Empty field here indicates root
     }
 
+    fun optional(): Codec<T?> {
+        return Companion.optional(this)
+    }
+
+    fun list(): Codec<List<T>> {
+        return Companion.list(this)
+    }
+
+    fun <V> mapAsKeyTo(valueCodec: Codec<V>): Codec<Map<T, V>> {
+        return Companion.map(this, valueCodec)
+    }
+
+    fun <K> mapAsValueTo(keyCodec: Codec<K>): Codec<Map<K, T>> {
+        return Companion.map(keyCodec, this)
+    }
+
+
     companion object {
 
         val propertyCounter = AtomicInteger()
+
+        inline fun <reified T : Any> of(fields: List<Field<T>>): Codec<T> {
+            return ReflectiveCodec(T::class, fields)
+        }
 
         inline fun <reified T : Any> of(vararg fields: Field<T>): Codec<T> {
             return ReflectiveCodec(T::class, fields.toList())
@@ -27,6 +47,12 @@ interface Codec<T> {
 
         inline fun <reified T : Any> of(vararg fields: Pair<Codec<*>, (T) -> Any?>): Codec<T> {
             return ReflectiveCodec(T::class, fields.map { pair -> Field("property${propertyCounter.getAndIncrement()}", pair.first, pair.second) })
+        }
+
+        inline fun <reified T: Any> of(builder: CodecBuilder<T>.() -> Unit): ReflectiveCodec<T> {
+            val instance = CodecBuilder<T>()
+            builder.invoke(instance)
+            return ReflectiveCodec(T::class, instance.getBuiltFields())
         }
 
         fun <T> list(codec: Codec<T>): Codec<List<T>> {
