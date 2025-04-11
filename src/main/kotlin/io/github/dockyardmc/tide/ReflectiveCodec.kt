@@ -2,25 +2,38 @@ package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import cz.lukynka.prettylog.LogType
-import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.primaryConstructor
 
+/**
+ * Reflective codec, uses reflection to get constructors or field values of a class and either write them or read them and create a class
+ *
+ * Reflection is done when the object is created so when the codec is being used (read or write) it isn't slow
+ *
+ * @param T
+ * @property kclass Class of the object this codec is for
+ * @property fields List of [Field] to provide information to the codec
+ */
 class ReflectiveCodec<T : Any>(
-    private val kclass: KClass<T>,
-    private val fields: List<Field<T>>,
+    val kclass: KClass<T>,
+    val fields: List<Field<T>>,
 ) : Codec<T> {
     override val type: KClass<*> = kclass
-    private val constructor: KFunction<T> = kclass.primaryConstructor ?: throw IllegalArgumentException("No primary constructor")
 
+    /**
+     * Constructor of the provided class, stored ahead of time to not slow down reading
+     */
+    val constructor: KFunction<T> = kclass.primaryConstructor ?: throw IllegalArgumentException("No primary constructor")
 
-    private val parameters = constructor.parameters.sortedBy { parameter -> parameter.index }
+    /**
+     * Parameters of the constructor, stored ahead of time to not slow down reading
+     */
+    val parameters = constructor.parameters.sortedBy { parameter -> parameter.index }
 
+    // type checking
     init {
-        // type checking
         fields.forEachIndexed { i, field ->
             val paramType = parameters[i].type.classifier as? KClass<*>
                 ?: throw IllegalArgumentException("Unsupported generic type")
@@ -40,8 +53,6 @@ class ReflectiveCodec<T : Any>(
         }
     }
 
-    // ... rest of the existing code ...
-
     override fun writeNetwork(buffer: ByteBuf, value: T) {
         fields.forEach { field ->
             @Suppress("UNCHECKED_CAST")
@@ -55,10 +66,6 @@ class ReflectiveCodec<T : Any>(
             (field.codec as Codec<Any?>).readNetwork(buffer)
         }
         return constructor.callBy(parameters.associateWith { parameter -> args[parameter.index] })
-    }
-
-    fun readJson(json: JsonObject): T {
-        return readJson(json, "_")
     }
 
     override fun writeJson(json: JsonElement, value: T, field: String) {

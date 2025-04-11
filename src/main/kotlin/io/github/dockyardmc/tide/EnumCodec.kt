@@ -1,10 +1,7 @@
 package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
-import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
 class EnumCodec<T : Enum<T>>(private val kClass: KClass<out Enum<T>>) : Codec<Enum<T>> {
