@@ -13,7 +13,7 @@ interface Codec<T> {
     fun readJson(json: JsonObject, field: String): T
 
     fun writeJson(json: JsonObject, value: T) {
-        writeJson(json, value, "")  // Empty field indicates root
+        writeJson(json, value, "")  // Empty field here indicates root
     }
 
     companion object {
@@ -30,6 +30,10 @@ interface Codec<T> {
 
         fun <T> list(codec: Codec<T>): Codec<List<T>> {
             return ListCodec<T>(codec)
+        }
+
+        fun <K, V> map(keyCodec: Codec<K>, valueCodec: Codec<V>): Codec<Map<K, V>> {
+            return MapCodec<K, V>(keyCodec, valueCodec)
         }
     }
 }
