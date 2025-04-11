@@ -1,16 +1,138 @@
 package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
 import java.nio.charset.StandardCharsets
+import java.util.*
 import kotlin.experimental.inv
 
 object Primitives {
 
+    object Byte : PrimitiveCodec<kotlin.Byte>(kotlin.Byte::class) {
+
+        override fun writeNetwork(buffer: ByteBuf, value: kotlin.Byte) {
+            buffer.writeByte(value.toInt())
+        }
+
+        override fun readNetwork(buffer: ByteBuf): kotlin.Byte {
+            return buffer.readByte()
+        }
+
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Byte {
+            return json.getPrimitive<kotlin.Int>(field).toByte()
+        }
+
+        override fun writeJson(json: JsonElement, value: kotlin.Byte, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value)
+        }
+    }
+
+    object Double : PrimitiveCodec<kotlin.Double>(kotlin.Double::class) {
+
+        override fun writeNetwork(buffer: ByteBuf, value: kotlin.Double) {
+            buffer.writeDouble(value)
+        }
+
+        override fun readNetwork(buffer: ByteBuf): kotlin.Double {
+            return buffer.readDouble()
+        }
+
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Double {
+            return json.getPrimitive<kotlin.Double>(field)
+        }
+
+        override fun writeJson(json: JsonElement, value: kotlin.Double, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value)
+        }
+    }
+
+    object Float : PrimitiveCodec<kotlin.Float>(kotlin.Float::class) {
+
+        override fun writeNetwork(buffer: ByteBuf, value: kotlin.Float) {
+            buffer.writeFloat(value)
+        }
+
+        override fun readNetwork(buffer: ByteBuf): kotlin.Float {
+            return buffer.readFloat()
+        }
+
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Float {
+            return json.getPrimitive<kotlin.Float>(field)
+        }
+
+        override fun writeJson(json: JsonElement, value: kotlin.Float, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value)
+        }
+    }
+
+    object Long : PrimitiveCodec<kotlin.Long>(kotlin.Long::class) {
+
+        override fun writeNetwork(buffer: ByteBuf, value: kotlin.Long) {
+            buffer.writeLong(value)
+        }
+
+        override fun readNetwork(buffer: ByteBuf): kotlin.Long {
+            return buffer.readLong()
+        }
+
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Long {
+            return json.getPrimitive<kotlin.Long>(field)
+        }
+
+        override fun writeJson(json: JsonElement, value: kotlin.Long, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value)
+        }
+    }
+
+    object UUID : PrimitiveCodec<java.util.UUID>(java.util.UUID::class) {
+
+        override fun writeNetwork(buffer: ByteBuf, value: java.util.UUID) {
+            Long.writeNetwork(buffer, value.mostSignificantBits)
+            Long.writeNetwork(buffer, value.leastSignificantBits)
+        }
+
+        override fun readNetwork(buffer: ByteBuf): java.util.UUID {
+            val most = Long.readNetwork(buffer)
+            val least = Long.readNetwork(buffer)
+            return UUID(most, least)
+        }
+
+        override fun readJson(json: JsonElement, field: kotlin.String): java.util.UUID {
+            return java.util.UUID.fromString(json.getPrimitive<kotlin.String>(field))
+        }
+
+        override fun writeJson(json: JsonElement, value: java.util.UUID, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value.toString())
+        }
+
+    }
+
+    object ByteArray : PrimitiveCodec<kotlin.ByteArray>(kotlin.ByteArray::class) {
+
+        override fun writeNetwork(buffer: ByteBuf, value: kotlin.ByteArray) {
+            VarInt.writeNetwork(buffer, value.size)
+            buffer.writeBytes(value)
+        }
+
+        override fun readNetwork(buffer: ByteBuf): kotlin.ByteArray {
+            val size = VarInt.readNetwork(buffer)
+            val readBytes = buffer.readBytes(size)
+            return readBytes.array()
+        }
+
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.ByteArray {
+            return Base64.getDecoder().decode(json.getPrimitive<kotlin.String>(field))
+        }
+
+        override fun writeJson(json: JsonElement, value: kotlin.ByteArray, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, Base64.getEncoder().encodeToString(value))
+        }
+
+    }
+
     object VarInt : PrimitiveCodec<kotlin.Int>(kotlin.Int::class) {
-        private const val SEGMENT_BITS: Byte = 0x7F
+        private const val SEGMENT_BITS: kotlin.Byte = 0x7F
         private const val CONTINUE_BIT = 0x80
 
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.Int) {
@@ -28,7 +150,7 @@ object Primitives {
         override fun readNetwork(buffer: ByteBuf): kotlin.Int {
             var value = 0
             var position = 0
-            var currentByte: Byte
+            var currentByte: kotlin.Byte
             while (buffer.isReadable) {
                 currentByte = buffer.readByte()
                 value = value or (currentByte.toInt() and SEGMENT_BITS.toInt() shl position)
