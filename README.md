@@ -9,7 +9,7 @@
 
 Tide is a Kotlin codec library that allows for serializing to network protocol and JSON while allowing other formats to be integrated via use custom Transcoders. 
 
-It is purpose built for the [DockyardMC](https://github.com/DockyardMC/Dockyard) project which is reimplementation of the Minecraft server protocol so **some primitive types like `Strings`, `Lists` and `Maps` are **not** using the standard format, but they are following the Minecraft protocol's implementation**
+It is purpose built for the [DockyardMC](https://github.com/DockyardMC/Dockyard) project which is reimplementation of the Minecraft server protocol so **some primitive types like **`Strings`**, **`Lists`** and **`Maps`** are not using the standard format, but they are following the Minecraft protocol's implementation**
 
 ## Installation
 
@@ -76,7 +76,7 @@ data class Book(val pages: List<String>) {
 
 ---
 
-To use maps, you can either use Codec#mapAsKeyTo which will create map of the current codec as key and provided codec as value or Codec#mapAsValueTo which will use the current coded as value and provided coded as key:
+To use maps, you can either use `Codec#mapAsKeyTo` which will create map of the current codec as key and provided codec as value or Codec#mapAsValueTo which will use the current coded as value and provided coded as key:
 
 ```kotlin
 data class WarehouseInventory(val iceCreamFlavours: Map<String, Int>, val cookieFlavours: Map<String, Int>) {
