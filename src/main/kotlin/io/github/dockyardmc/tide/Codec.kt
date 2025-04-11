@@ -35,5 +35,9 @@ interface Codec<T> {
         fun <K, V> map(keyCodec: Codec<K>, valueCodec: Codec<V>): Codec<Map<K, V>> {
             return MapCodec<K, V>(keyCodec, valueCodec)
         }
+
+        fun <T> optional(codec: Codec<T>): Codec<T?> {
+            return OptionalCodec<T>(codec)
+        }
     }
 }

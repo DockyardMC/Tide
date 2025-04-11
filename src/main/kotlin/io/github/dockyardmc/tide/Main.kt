@@ -6,11 +6,6 @@ import io.netty.buffer.Unpooled
 
 fun main() {
     val json = JsonObject()
-//    val bus = Bus(
-//        name = "Mercedes-Benz Citaro",
-//        passengers = listOf(Person("Maya", 69), Person("Aso", 420), Person("Pikachu", 727)),
-//        isGonnaExplode = true
-//    )
     val classs = Class(
         "A1", mapOf(
             Person("Maya", 69) to false,
@@ -18,7 +13,8 @@ fun main() {
             Person("Pikachu", 727) to false,
             Person("Kev", Int.MAX_VALUE) to true,
             Person("Not Maya", 69) to true
-        )
+        ),
+        true
     )
 
     val buffer = Unpooled.buffer()
@@ -33,11 +29,12 @@ fun main() {
     log("Json: $json")
 }
 
-data class Class(val className: String, val studentsPresent: Map<Person, Boolean>) {
+data class Class(val className: String, val studentsPresent: Map<Person, Boolean>, val isGay: Boolean?) {
     companion object {
         val codec = Codec.of(
             Field("class_name", Primitives.String, Class::className),
             Field("students_present", Codec.map<Person, Boolean>(Person.codec, Primitives.Boolean), Class::studentsPresent),
+            Field("is_gay", Codec.optional(Primitives.Boolean), Class::isGay),
         )
     }
 }
