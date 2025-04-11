@@ -39,23 +39,45 @@ data class Class(val className: String, val studentsPresent: Map<Person, Boolean
     }
 }
 
-data class Bus(val name: String, val passengers: List<Person>, val isGonnaExplode: Boolean?, val tiresPresent: Map<Int, Boolean>) {
+data class Bus(val model: String, val driver: Person, val passengers: List<Person>) {
     companion object {
         val codec = Codec.of<Bus> {
-            field("name", Primitives.String, Bus::name)
+            field("name", Primitives.String, Bus::model)
+            field("driver", Person.codec, Bus::driver)
             field("passengers", Person.codec.list(), Bus::passengers)
-            field("type", Primitives.Boolean.optional(), Bus::isGonnaExplode)
-            field("tires_present", Primitives.VarInt.mapAsKeyTo(Primitives.Boolean), Bus::tiresPresent)
         }
     }
 }
 
-data class Person(val name: String, val age: Int, val type: PersonType?) {
+
+data class Book(val pages: List<String>, val synopsis: String?, val type: Book.Type) {
+
+    enum class Type {
+        HORROR,
+        SCI_FI,
+        MEDIEVAL,
+        FANTASY,
+        FICTION,
+        ADVENTURE,
+        THRILLER,
+        MANGA,
+        HENTAI
+    }
+
     companion object {
-        val codec = Codec.of<Person>(
-            Field("name", Primitives.String, Person::name),
-            Field("age", Primitives.VarInt, Person::age),
-            Field("type", Codec.optional(Codec.enum(PersonType::class)), Person::type)
-        )
+        val codec = Codec.of<Book> {
+            field("pages", Primitives.String.list(), Book::pages)
+            field("synopsis", Primitives.String.optional(), Book::synopsis)
+            field("type", Codec.enum(Book.Type::class), Book::type)
+        }
+    }
+}
+
+data class Person(val name: String, val age: Int) {
+    companion object {
+        val codec = Codec.of<Person> {
+            field("name", Primitives.String, Person::name)
+            field("age", Primitives.VarInt, Person::age)
+        }
     }
 }
