@@ -1,6 +1,7 @@
 package io.github.dockyardmc.tide
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
@@ -30,17 +31,28 @@ class MapCodec<K, V>(private val keyCodec: Codec<K>, private val valueCodec: Cod
     //
     // me when https://img.lukynka.cloud/wtf.png
     //
-    override fun readJson(json: JsonObject, field: String): Map<K, V> {
-        if (!json.has(field)) {
-            throw IllegalArgumentException("Field '$field' does not exist")
+    override fun readJson(json: JsonElement, field: String): Map<K, V> {
+        val jsonArrayToReadFrom: JsonArray
+
+        if (field.isEmpty()) { // root node
+            if (json !is JsonArray) throw IllegalStateException("JsonElement is not JsonArray, cannot write json as root node")
+            jsonArrayToReadFrom = json
+        } else {
+            val jsonObject = json.asObjectOrThrow()
+            if (!jsonObject.has(field)) {
+                throw IllegalArgumentException("Field '$field' does not exist")
+            }
+            val jsonElement = jsonObject.get(field)
+            if (jsonElement !is JsonArray) {
+                throw IllegalArgumentException("Field '$field' is not json array")
+            }
+
+            jsonArrayToReadFrom = jsonElement
         }
-        val jsonElement = json.get(field)
-        if (!jsonElement.isJsonArray) {
-            throw IllegalArgumentException("Field '$field' is not json array")
-        }
-        val jsonArray = jsonElement.asJsonArray
+
         val map = mutableMapOf<K, V>()
-        jsonArray.forEach { entryElement ->
+
+        jsonArrayToReadFrom.forEach { entryElement ->
             if (!entryElement.isJsonObject) {
                 throw IllegalArgumentException("map entry is not json array")
             }
@@ -56,14 +68,21 @@ class MapCodec<K, V>(private val keyCodec: Codec<K>, private val valueCodec: Cod
         return map
     }
 
-    override fun writeJson(json: JsonObject, value: Map<K, V>, field: String) {
-        val jsonArray = JsonArray()
+    override fun writeJson(json: JsonElement, value: Map<K, V>, field: String) {
+        var jsonArray: JsonArray = JsonArray()
+
+        if (field.isEmpty()) { // root node
+            if (json !is JsonArray) throw IllegalStateException("JsonElement is not JsonArray, cannot write json as root node")
+            jsonArray = json
+        }
+
         value.forEach { (key, entryValue) ->
             val entryObj = JsonObject()
             keyCodec.writeJson(entryObj, key, "key")
             valueCodec.writeJson(entryObj, entryValue, "value")
             jsonArray.add(entryObj)
         }
-        json.add(field, jsonArray)
+
+        if (json is JsonObject) json.add(field, jsonArray)
     }
 }

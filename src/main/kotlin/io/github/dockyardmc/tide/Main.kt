@@ -1,32 +1,6 @@
 package io.github.dockyardmc.tide
 
-import com.google.gson.JsonObject
-import cz.lukynka.prettylog.log
-import io.netty.buffer.Unpooled
-
 fun main() {
-    val json = JsonObject()
-    val classs = Class(
-        "A1", mapOf(
-            Person("Maya", 69) to false,
-            Person("Aso", 420) to true,
-            Person("Pikachu", 727) to false,
-            Person("Kev", Int.MAX_VALUE) to true,
-            Person("Not Maya", 69) to true
-        ),
-        true
-    )
-
-    val buffer = Unpooled.buffer()
-
-    Class.codec.writeNetwork(buffer, classs)
-    Class.codec.writeJson(json, classs)
-    buffer.resetReaderIndex()
-
-    val newClass = Class.codec.readNetwork(buffer)
-
-    log("Reconstructed Network: $newClass")
-    log("Json: $json")
 }
 
 data class Class(val className: String, val studentsPresent: Map<Person, Boolean>, val isGay: Boolean?) {

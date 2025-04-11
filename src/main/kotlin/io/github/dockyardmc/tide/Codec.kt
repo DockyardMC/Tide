@@ -1,5 +1,6 @@
 package io.github.dockyardmc.tide
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
 import java.util.concurrent.atomic.AtomicInteger
@@ -9,10 +10,10 @@ interface Codec<T> {
     val type: KClass<*>
     fun writeNetwork(buffer: ByteBuf, value: T)
     fun readNetwork(buffer: ByteBuf): T
-    fun writeJson(json: JsonObject, value: T, field: String)
-    fun readJson(json: JsonObject, field: String): T
+    fun writeJson(json: JsonElement, value: T, field: String)
+    fun readJson(json: JsonElement, field: String): T
 
-    fun writeJson(json: JsonObject, value: T) {
+    fun writeJson(json: JsonElement, value: T) {
         writeJson(json, value, "")  // Empty field here indicates root
     }
 
@@ -38,6 +39,10 @@ interface Codec<T> {
 
         fun <T> optional(codec: Codec<T>): Codec<T?> {
             return OptionalCodec<T>(codec)
+        }
+
+        fun <T : Enum<T>> enum(kClass: KClass<Enum<T>>): EnumCodec<T> {
+            return EnumCodec<T>(kClass)
         }
     }
 }

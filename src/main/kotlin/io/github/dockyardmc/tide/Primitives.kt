@@ -1,5 +1,6 @@
 package io.github.dockyardmc.tide
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
@@ -38,12 +39,12 @@ object Primitives {
             return value
         }
 
-        override fun readJson(json: JsonObject, field: kotlin.String): kotlin.Int {
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Int {
             return json.getPrimitive<kotlin.Int>(field)
         }
 
-        override fun writeJson(json: JsonObject, value: kotlin.Int, field: kotlin.String) {
-            json.addProperty(field, value)
+        override fun writeJson(json: JsonElement, value: kotlin.Int, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value)
         }
 
     }
@@ -58,12 +59,12 @@ object Primitives {
             return buffer.readBoolean()
         }
 
-        override fun readJson(json: JsonObject, field: kotlin.String): kotlin.Boolean {
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Boolean {
             return json.getPrimitive(field)
         }
 
-        override fun writeJson(json: JsonObject, value: kotlin.Boolean, field: kotlin.String) {
-            json.addProperty(field, value)
+        override fun writeJson(json: JsonElement, value: kotlin.Boolean, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value)
         }
 
     }
@@ -88,12 +89,12 @@ object Primitives {
             return string
         }
 
-        override fun readJson(json: JsonObject, field: kotlin.String): kotlin.String {
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.String {
             return json.getPrimitive<kotlin.String>(field)
         }
 
-        override fun writeJson(json: JsonObject, value: kotlin.String, field: kotlin.String) {
-            json.addProperty(field, value)
+        override fun writeJson(json: JsonElement, value: kotlin.String, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value)
         }
     }
 
@@ -106,12 +107,12 @@ object Primitives {
             return buffer.readInt()
         }
 
-        override fun readJson(json: JsonObject, field: kotlin.String): kotlin.Int {
+        override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Int {
             return json.getPrimitive<kotlin.Int>(field)
         }
 
-        override fun writeJson(json: JsonObject, value: kotlin.Int, field: kotlin.String) {
-            json.addProperty(field, value)
+        override fun writeJson(json: JsonElement, value: kotlin.Int, field: kotlin.String) {
+            json.asObjectOrThrow().addProperty(field, value)
         }
     }
 

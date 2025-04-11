@@ -1,6 +1,9 @@
 package io.github.dockyardmc.tide
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -48,7 +51,7 @@ class ReflectiveCodec<T : Any>(
         return readJson(json, "_")
     }
 
-    override fun writeJson(json: JsonObject, value: T, field: String) {
+    override fun writeJson(json: JsonElement, value: T, field: String) {
         val nestedJson = JsonObject()
         fields.forEach { arg ->
             val fieldValue = arg.getter(value)
@@ -58,18 +61,27 @@ class ReflectiveCodec<T : Any>(
 
         if (field.isEmpty()) {
             nestedJson.entrySet().forEach { (key, value) ->
-                json.add(key, value)
+                json.asObjectOrThrow().add(key, value)
             }
         } else {
-            json.add(field, nestedJson)
+            json.asObjectOrThrow().add(field, nestedJson)
         }
     }
 
-    override fun readJson(json: JsonObject, field: String): T {
-        val nestedJson = json.getAsJsonObject(field)
+    override fun readJson(json: JsonElement, field: String): T {
+        val jsonToReadFrom: JsonElement
+
+        if (field.isEmpty()) { // root node
+            if (json !is JsonObject) throw IllegalStateException("JsonElement is not JsonObject, cannot write json as root node")
+            jsonToReadFrom = json
+            log("Using self", LogType.DEBUG)
+        } else {
+            log("Using object of object", LogType.DEBUG)
+            jsonToReadFrom = json.asObjectOrThrow().getAsJsonObject(field)
+        }
         val args = fields.map { arg ->
             @Suppress("UNCHECKED_CAST")
-            (arg.codec as Codec<Any?>).readJson(nestedJson, arg.name)
+            (arg.codec as Codec<Any?>).readJson(jsonToReadFrom, arg.name)
         }
         return constructor.callBy(
             parameters.associateWith { parameter -> args[parameter.index] }

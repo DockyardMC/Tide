@@ -1,7 +1,7 @@
 package io.github.dockyardmc.tide
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonNull
-import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 
@@ -22,22 +22,31 @@ class OptionalCodec<T>(private val elementCodec: Codec<T>) : Codec<T?> {
         }
     }
 
-    override fun readJson(json: JsonObject, field: String): T? {
-        if (!json.has(field)) {
-            return null
+    override fun readJson(json: JsonElement, field: String): T? {
+        val jsonElementToRead: JsonElement?
+
+        if (field.isEmpty()) {
+            jsonElementToRead = json
+        } else {
+            val jsonObject = json.asObjectOrThrow()
+            if (!jsonObject.has(field)) {
+                return null
+            }
+            jsonElementToRead = jsonObject.get(field)
         }
-        val jsonElement = json.get(field)
-        if (jsonElement.isJsonNull) {
+
+        if (jsonElementToRead == null || jsonElementToRead.isJsonNull) {
             return null // treat explicit json null as kotlin null
         }
-        return elementCodec.readJson(json, field)
+        return elementCodec.readJson(jsonElementToRead, field)
     }
 
-    override fun writeJson(json: JsonObject, value: T?, field: String) {
+    override fun writeJson(json: JsonElement, value: T?, field: String) {
+
         if (value != null) {
             elementCodec.writeJson(json, value, field)
         } else {
-            json.add(field, JsonNull.INSTANCE)
+            json.asObjectOrThrow().add(field, JsonNull.INSTANCE)
         }
     }
 }

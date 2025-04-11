@@ -2,17 +2,31 @@ package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import java.lang.IllegalStateException
 
+fun JsonElement.asObjectOrThrow(): JsonObject {
+    if (this !is JsonObject) throw IllegalStateException("JsonElement is not JsonObject")
+    return this
+}
 
-inline fun <reified T> JsonObject.getPrimitive(key: String): T {
+inline fun <reified T> JsonElement.getPrimitive(key: String): T {
     return this.getPrimitiveOrNull(key) ?: throw IllegalStateException("Field with name $key was not found")
 }
 
-inline fun <reified T> JsonObject.getPrimitiveOrNull(key: String): T? {
-    if (!has(key)) return null
+inline fun <reified T> JsonElement.getPrimitiveOrNull(key: String): T? {
+    val element: JsonElement
+    if (key.isEmpty()) {
+        if (this !is JsonObject) throw IllegalStateException("JsonElement is not JsonObject")
+        element = this
+    } else {
+        if (this !is JsonObject) throw IllegalStateException("this is not JsonObject")
+        if (!has(key)) return null
+        element = get(key)
+    }
+    return getJsonAsGeneric<T>(element)
 
-    val element = get(key)
+}
+
+inline fun <reified T> getJsonAsGeneric(element: JsonElement): T {
     return when (T::class) {
         String::class -> {
             when {
@@ -20,6 +34,7 @@ inline fun <reified T> JsonObject.getPrimitiveOrNull(key: String): T? {
                 else -> element.toString()
             } as T
         }
+
         Int::class -> element.asInt as T
         Long::class -> element.asLong as T
         Double::class -> element.asDouble as T

@@ -1,6 +1,7 @@
 package io.github.dockyardmc.tide
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
@@ -24,16 +25,28 @@ class ListCodec<T>(private val elementCodec: Codec<T>) : Codec<List<T>> {
         }
     }
 
-    override fun readJson(json: JsonObject, field: String): List<T> {
-        if (!json.has(field)) {
+    override fun readJson(json: JsonElement, field: String): List<T> {
+        val list = mutableListOf<T>()
+
+        if (field.isEmpty()) { // root node
+            if (json !is JsonArray) throw IllegalStateException("JsonElement is not JsonArray, cannot read json as root node")
+            val tempObj = JsonObject()
+            json.forEach { element ->
+                tempObj.add("value", element)
+                list.add(elementCodec.readJson(tempObj, "value"))
+            }
+            return list
+        }
+
+        val jsonObject = json.asObjectOrThrow()
+        if (!jsonObject.has(field)) {
             throw IllegalArgumentException("Field '$field' does not exist")
         }
-        val jsonElement = json.get(field)
+        val jsonElement = jsonObject.get(field)
         if (!jsonElement.isJsonArray) {
             throw IllegalArgumentException("Field '$field' is not json array")
         }
         val jsonArray = jsonElement.asJsonArray
-        val list = mutableListOf<T>()
         jsonArray.forEach { element ->
             val tempObj = JsonObject()
             tempObj.add("value", element)
@@ -42,14 +55,21 @@ class ListCodec<T>(private val elementCodec: Codec<T>) : Codec<List<T>> {
         return list
     }
 
-    override fun writeJson(json: JsonObject, value: List<T>, field: String) {
-        val jsonArray = JsonArray()
+    override fun writeJson(json: JsonElement, value: List<T>, field: String) {
+        var arrayToWriteTo: JsonArray = JsonArray()
+
+        if (field.isEmpty()) { // root node
+            if (json !is JsonArray) throw IllegalStateException("JsonElement is not JsonArray, cannot write json as root node")
+            arrayToWriteTo = json
+        }
+
         value.forEach { element ->
             val tempObj = JsonObject()
             elementCodec.writeJson(tempObj, element, "value")
             val elementValue = tempObj.get("value")
-            jsonArray.add(elementValue)
+            arrayToWriteTo.add(elementValue)
         }
-        json.add(field, jsonArray)
+
+        if (json is JsonObject) json.add(field, arrayToWriteTo)
     }
 }
