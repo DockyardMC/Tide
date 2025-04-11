@@ -41,7 +41,7 @@ interface Codec<T> {
             return OptionalCodec<T>(codec)
         }
 
-        fun <T : Enum<T>> enum(kClass: KClass<Enum<T>>): EnumCodec<T> {
+        fun <T : Enum<T>> enum(kClass: KClass<out Enum<T>>): EnumCodec<T> {
             return EnumCodec<T>(kClass)
         }
     }

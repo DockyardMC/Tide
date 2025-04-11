@@ -25,12 +25,22 @@ class ReflectiveCodec<T : Any>(
             val paramType = parameters[i].type.classifier as? KClass<*>
                 ?: throw IllegalArgumentException("Unsupported generic type")
 
-            require(paramType == field.codec.type) {
+            val codecType = field.codec.type
+
+            val typeMatches = when {
+                codecType == Enum::class -> paramType.java.isEnum
+                else -> paramType == codecType
+            }
+
+            require(typeMatches) {
                 "Type mismatch for parameter ${parameters[i].name}: " +
-                        "Expected ${field.codec.type.simpleName}, found ${paramType.simpleName}"
+                        "Expected ${if (codecType == Enum::class) "Enum" else codecType.simpleName}, " +
+                        "found ${paramType.simpleName}"
             }
         }
     }
+
+    // ... rest of the existing code ...
 
     override fun writeNetwork(buffer: ByteBuf, value: T) {
         fields.forEach { field ->
@@ -74,9 +84,7 @@ class ReflectiveCodec<T : Any>(
         if (field.isEmpty()) { // root node
             if (json !is JsonObject) throw IllegalStateException("JsonElement is not JsonObject, cannot write json as root node")
             jsonToReadFrom = json
-            log("Using self", LogType.DEBUG)
         } else {
-            log("Using object of object", LogType.DEBUG)
             jsonToReadFrom = json.asObjectOrThrow().getAsJsonObject(field)
         }
         val args = fields.map { arg ->

@@ -46,6 +46,7 @@ class ListCodec<T>(private val elementCodec: Codec<T>) : Codec<List<T>> {
         if (!jsonElement.isJsonArray) {
             throw IllegalArgumentException("Field '$field' is not json array")
         }
+
         val jsonArray = jsonElement.asJsonArray
         jsonArray.forEach { element ->
             val tempObj = JsonObject()

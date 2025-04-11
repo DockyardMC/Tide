@@ -2,6 +2,7 @@ package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
 
 fun JsonElement.asObjectOrThrow(): JsonObject {
     if (this !is JsonObject) throw IllegalStateException("JsonElement is not JsonObject")
@@ -14,8 +15,12 @@ inline fun <reified T> JsonElement.getPrimitive(key: String): T {
 
 inline fun <reified T> JsonElement.getPrimitiveOrNull(key: String): T? {
     val element: JsonElement
+
+    if(this is JsonPrimitive) {
+        return getJsonAsGeneric<T>(this)
+    }
+
     if (key.isEmpty()) {
-        if (this !is JsonObject) throw IllegalStateException("JsonElement is not JsonObject")
         element = this
     } else {
         if (this !is JsonObject) throw IllegalStateException("this is not JsonObject")
