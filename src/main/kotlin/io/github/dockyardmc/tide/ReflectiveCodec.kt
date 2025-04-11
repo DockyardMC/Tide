@@ -11,11 +11,10 @@ class ReflectiveCodec<T : Any>(
     private val fields: List<Field<T>>,
 ) : Codec<T> {
     override val type: KClass<*> = kclass
-    private val constructor: KFunction<T> by lazy {
-        kclass.primaryConstructor ?: throw IllegalArgumentException("No primary constructor")
-    }
+    private val constructor: KFunction<T> = kclass.primaryConstructor ?: throw IllegalArgumentException("No primary constructor")
 
-    private val parameters by lazy { constructor.parameters.sortedBy { parameter -> parameter.index } }
+
+    private val parameters = constructor.parameters.sortedBy { parameter -> parameter.index }
 
     init {
         // type checking
