@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm") version "2.1.0"
-    kotlin("plugin.serialization") version "2.1.0"
 }
 
 group = "io.github.dockyard.tide"
@@ -17,8 +16,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation("cz.lukynka:pretty-log:1.5")
     api("io.ktor:ktor-server-netty:3.1.2")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.0")
+    api("com.google.code.gson:gson:2.13.0")
 }
 
 tasks.test {

@@ -1,7 +1,8 @@
 package io.github.dockyardmc.tide
 
+import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
-import kotlinx.serialization.json.JsonObject
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
 interface Codec<T> {
@@ -11,13 +12,24 @@ interface Codec<T> {
     fun writeJson(json: JsonObject, value: T, field: String)
     fun readJson(json: JsonObject, field: String): T
 
+    fun writeJson(json: JsonObject, value: T) {
+        writeJson(json, value, "")  // Empty field indicates root
+    }
+
     companion object {
+
+        val propertyCounter = AtomicInteger()
+
         inline fun <reified T : Any> of(vararg fields: Field<T>): Codec<T> {
             return ReflectiveCodec(T::class, fields.toList())
         }
 
         inline fun <reified T : Any> of(vararg fields: Pair<Codec<*>, (T) -> Any?>): Codec<T> {
-            return ReflectiveCodec(T::class, fields.map { pair -> Field("_", pair.first, pair.second) })
+            return ReflectiveCodec(T::class, fields.map { pair -> Field("property${propertyCounter.getAndIncrement()}", pair.first, pair.second) })
+        }
+
+        fun <T> list(codec: Codec<T>): Codec<List<T>> {
+            return ListCodec<T>(codec)
         }
     }
 }

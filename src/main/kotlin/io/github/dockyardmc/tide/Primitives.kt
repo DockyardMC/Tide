@@ -1,7 +1,7 @@
 package io.github.dockyardmc.tide
 
+import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
-import kotlinx.serialization.json.JsonObject
 import java.nio.charset.StandardCharsets
 
 object Primitives {
@@ -16,11 +16,11 @@ object Primitives {
             String(ByteArray(buffer.readInt()).apply { buffer.readBytes(this) })
 
         override fun readJson(json: JsonObject, field: String): String {
-            TODO("Not yet implemented")
+            return json.getPrimitive<String>(field)
         }
 
         override fun writeJson(json: JsonObject, value: String, field: String) {
-            TODO("Not yet implemented")
+            json.addProperty(field, value)
         }
     }
 
@@ -34,11 +34,11 @@ object Primitives {
         }
 
         override fun readJson(json: JsonObject, field: String): Int {
-            TODO("Not yet implemented")
+            return json.getPrimitive<Int>(field)
         }
 
         override fun writeJson(json: JsonObject, value: Int, field: String) {
-            TODO("Not yet implemented")
+            json.addProperty(field, value)
         }
     }
 

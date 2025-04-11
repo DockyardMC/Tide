@@ -1,8 +1,7 @@
 package io.github.dockyardmc.tide
 
+import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
-import jdk.jshell.spi.ExecutionControl.NotImplementedException
-import kotlinx.serialization.json.JsonObject
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.primaryConstructor
@@ -18,7 +17,7 @@ class ReflectiveCodec<T : Any>(
 
     private val parameters by lazy { constructor.parameters.sortedBy { parameter -> parameter.index } }
 
-     init {
+    init {
         // type checking
         fields.forEachIndexed { i, field ->
             val paramType = parameters[i].type.classifier as? KClass<*>
@@ -46,11 +45,35 @@ class ReflectiveCodec<T : Any>(
         return constructor.callBy(parameters.associateWith { parameter -> args[parameter.index] })
     }
 
-    override fun readJson(json: JsonObject, field: String): T {
-        TODO("Not yet implemented")
+    fun readJson(json: JsonObject): T {
+        return readJson(json, "_")
     }
 
     override fun writeJson(json: JsonObject, value: T, field: String) {
-        TODO("Not yet implemented")
+        val nestedJson = JsonObject()
+        fields.forEach { arg ->
+            val fieldValue = arg.getter(value)
+            @Suppress("UNCHECKED_CAST")
+            (arg.codec as Codec<Any?>).writeJson(nestedJson, fieldValue, arg.name)
+        }
+
+        if (field.isEmpty()) {
+            nestedJson.entrySet().forEach { (key, value) ->
+                json.add(key, value)
+            }
+        } else {
+            json.add(field, nestedJson)
+        }
+    }
+
+    override fun readJson(json: JsonObject, field: String): T {
+        val nestedJson = json.getAsJsonObject(field)
+        val args = fields.map { arg ->
+            @Suppress("UNCHECKED_CAST")
+            (arg.codec as Codec<Any?>).readJson(nestedJson, arg.name)
+        }
+        return constructor.callBy(
+            parameters.associateWith { parameter -> args[parameter.index] }
+        )
     }
 }
