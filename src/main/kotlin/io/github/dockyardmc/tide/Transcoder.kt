@@ -3,7 +3,7 @@ package io.github.dockyardmc.tide
 import java.util.UUID
 import kotlin.reflect.KClass
 
-//trans in MY coder?? 🏳️‍⚧️🏳️‍⚧️🏳️‍⚧️
+//my coder is WHAT? 🏳️‍⚧️🏳️‍⚧️🏳️‍⚧️
 abstract class Transcoder<T> {
 
     abstract fun writeInt(format: T, field: String, value: Int)
