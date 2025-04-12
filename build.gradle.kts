@@ -23,6 +23,7 @@ dependencies {
     implementation("cz.lukynka:pretty-log:1.5")
     api("io.ktor:ktor-server-netty:3.1.2")
     api("com.google.code.gson:gson:2.13.0")
+    implementation("com.moandjiezana.toml:toml4j:0.7.2")
 }
 
 tasks.test {

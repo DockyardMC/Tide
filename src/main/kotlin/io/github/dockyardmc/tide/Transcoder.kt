@@ -45,7 +45,7 @@ abstract class Transcoder<T> {
 
     abstract fun <E : Enum<E>> writeEnum(kClass: KClass<out Enum<E>>, format: T, field: String, value: Enum<E>)
 
-    abstract fun <E : Enum<E>> readEnum(format: T, field: String): E
+    abstract fun <E : Enum<E>> readEnum(kClass: KClass<out Enum<E>>, format: T, field: String): E
 
     //-----------------------------------------------------------//
 
@@ -68,6 +68,5 @@ abstract class Transcoder<T> {
     abstract fun readDouble(format: T, field: String): Double
 
     abstract fun readByte(format: T, field: String): Byte
-
 
 }
