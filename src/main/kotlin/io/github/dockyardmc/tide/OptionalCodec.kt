@@ -5,7 +5,7 @@ import com.google.gson.JsonNull
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 
-class OptionalCodec<T>(private val elementCodec: Codec<T>) : Codec<T?> {
+class OptionalCodec<T>(val elementCodec: Codec<T>) : Codec<T?> {
 
     override val type: KClass<*> = elementCodec.type
 

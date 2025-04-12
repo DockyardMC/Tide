@@ -9,7 +9,7 @@ class CodecTest {
 
     private val uuid = UUID.fromString("0c9151e4-7083-418d-a29c-bbc58f7c741b")
     private val player = Player("LukynkaCZE", null, mapOf(DisplayedSkinPart.HAT to true, DisplayedSkinPart.LEFT_PANTS to false), Location(Vector3d(0.0, 3.0, 6.9), World("main")))
-    private val testObject = Test(player, 69, 4.20, 6L, 0x4, 3.3f, uuid, WrappedByteArray(Unpooled.buffer().writeBoolean(true).array()), TestEnum.OPTION3, false)
+    val testObject = Test(player, 69, 4.20, 6L, 0x4, 3.3f, uuid, WrappedByteArray(Unpooled.buffer().writeBoolean(true).array()), TestEnum.OPTION3, false)
 
     enum class DisplayedSkinPart(val bit: Byte) {
         CAPE(0x01),

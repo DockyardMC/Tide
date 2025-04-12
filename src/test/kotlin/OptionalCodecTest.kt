@@ -19,7 +19,6 @@ class OptionalCodecTest {
     private val nullableEmpty = NullableTest(null)
     private val nullablePresent = NullableTest("hi")
 
-
     @Test
     fun testNullableNetworkReadWrite() {
         testNullableNetwork(nullableEmpty)
