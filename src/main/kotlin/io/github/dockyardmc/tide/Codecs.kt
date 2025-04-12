@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.experimental.inv
 
-object Primitives {
+object Codecs {
 
     object Byte : PrimitiveCodec<kotlin.Byte>(kotlin.Byte::class) {
 
@@ -118,7 +118,9 @@ object Primitives {
         override fun readNetwork(buffer: ByteBuf): kotlin.ByteArray {
             val size = VarInt.readNetwork(buffer)
             val readBytes = buffer.readBytes(size)
-            return readBytes.array()
+            val byteArray = ByteArray(readBytes.readableBytes())
+            readBytes.readBytes(byteArray)
+            return byteArray
         }
 
         override fun readJson(json: JsonElement, field: kotlin.String): kotlin.ByteArray {

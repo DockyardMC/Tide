@@ -8,12 +8,12 @@ class EnumCodec<T : Enum<T>>(private val kClass: KClass<out Enum<T>>) : Codec<En
     override val type: KClass<*> = Enum::class
 
     override fun readNetwork(buffer: ByteBuf): Enum<T> {
-        val ordinal = Primitives.VarInt.readNetwork(buffer)
+        val ordinal = Codecs.VarInt.readNetwork(buffer)
         return kClass.java.enumConstants[ordinal]
     }
 
     override fun writeNetwork(buffer: ByteBuf, value: Enum<T>) {
-        Primitives.VarInt.writeNetwork(buffer, value.ordinal)
+        Codecs.VarInt.writeNetwork(buffer, value.ordinal)
     }
 
     override fun readJson(json: JsonElement, field: String): Enum<T> {

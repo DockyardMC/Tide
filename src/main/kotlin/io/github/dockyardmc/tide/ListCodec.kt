@@ -11,7 +11,7 @@ class ListCodec<T>(private val elementCodec: Codec<T>) : Codec<List<T>> {
 
     override fun readNetwork(buffer: ByteBuf): List<T> {
         val inner = mutableListOf<T>()
-        val size = Primitives.VarInt.readNetwork(buffer)
+        val size = Codecs.VarInt.readNetwork(buffer)
         for (i in 0 until size) {
             inner.add(elementCodec.readNetwork(buffer))
         }
@@ -19,7 +19,7 @@ class ListCodec<T>(private val elementCodec: Codec<T>) : Codec<List<T>> {
     }
 
     override fun writeNetwork(buffer: ByteBuf, value: List<T>) {
-        Primitives.VarInt.writeNetwork(buffer, value.size)
+        Codecs.VarInt.writeNetwork(buffer, value.size)
         value.forEach { element ->
             elementCodec.writeNetwork(buffer, element)
         }

@@ -3,6 +3,8 @@ package io.github.dockyardmc.tide
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import cz.lukynka.prettylog.LogType
+import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 
@@ -10,7 +12,7 @@ class MapCodec<K, V>(private val keyCodec: Codec<K>, private val valueCodec: Cod
     override val type: KClass<*> = Map::class
 
     override fun writeNetwork(buffer: ByteBuf, value: Map<K, V>) {
-        Primitives.VarInt.writeNetwork(buffer, value.size)
+        Codecs.VarInt.writeNetwork(buffer, value.size)
         value.forEach { (key, value) ->
             keyCodec.writeNetwork(buffer, key)
             valueCodec.writeNetwork(buffer, value)
@@ -19,7 +21,7 @@ class MapCodec<K, V>(private val keyCodec: Codec<K>, private val valueCodec: Cod
 
     override fun readNetwork(buffer: ByteBuf): Map<K, V> {
         val map = mutableMapOf<K, V>()
-        val size = Primitives.VarInt.readNetwork(buffer)
+        val size = Codecs.VarInt.readNetwork(buffer)
         for (i in 0 until size) {
             val key = keyCodec.readNetwork(buffer)
             val value = valueCodec.readNetwork(buffer)
@@ -34,7 +36,7 @@ class MapCodec<K, V>(private val keyCodec: Codec<K>, private val valueCodec: Cod
     override fun readJson(json: JsonElement, field: String): Map<K, V> {
         val jsonArrayToReadFrom: JsonArray
 
-        if (field.isEmpty()) { // root node
+        if (field.isEmpty() || json is JsonArray) { // root node
             if (json !is JsonArray) throw IllegalStateException("JsonElement is not JsonArray, cannot write json as root node")
             jsonArrayToReadFrom = json
         } else {
