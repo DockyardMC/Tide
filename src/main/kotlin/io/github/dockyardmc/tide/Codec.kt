@@ -62,6 +62,28 @@ interface Codec<T> {
     }
 
     /**
+     * Writes codec using provided custom [Transcoder]
+     *
+     * @param A
+     * @param transcoder
+     * @param format
+     * @param value
+     * @param field
+     */
+    fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: T, field: String)
+
+    /**
+     * Reads codec using provided custom [Transcoder]
+     *
+     * @param A
+     * @param transcoder
+     * @param format
+     * @param field
+     * @return [T]
+     */
+    fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): T
+
+    /**
      * Reads a value from json as root node
      *
      * @param json

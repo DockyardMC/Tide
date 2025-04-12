@@ -21,6 +21,14 @@ class EnumCodec<T : Enum<T>>(val kClass: KClass<out Enum<T>>) : Codec<Enum<T>> {
         return kClass.java.enumConstants.first { entry -> entry.name == name }
     }
 
+    override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): Enum<T> {
+        return transcoder.readEnum<T>(format, field)
+    }
+
+    override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: Enum<T>, field: String) {
+        transcoder.writeEnum(kClass, format, field, value)
+    }
+
     override fun writeJson(json: JsonElement, value: Enum<T>, field: String) {
         json.asObjectOrThrow().addProperty(field, value.name)
     }

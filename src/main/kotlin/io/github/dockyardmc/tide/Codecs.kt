@@ -23,6 +23,14 @@ object Codecs {
             return json.getPrimitive<kotlin.Int>(field).toByte()
         }
 
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.Byte {
+            return transcoder.readByte(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.Byte, field: kotlin.String) {
+            transcoder.writeByte(format, field, value)
+        }
+
         override fun writeJson(json: JsonElement, value: kotlin.Byte, field: kotlin.String) {
             json.asObjectOrThrow().addProperty(field, value)
         }
@@ -40,6 +48,14 @@ object Codecs {
 
         override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Double {
             return json.getPrimitive<kotlin.Double>(field)
+        }
+
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.Double {
+            return transcoder.readDouble(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.Double, field: kotlin.String) {
+            transcoder.writeDouble(format, field, value)
         }
 
         override fun writeJson(json: JsonElement, value: kotlin.Double, field: kotlin.String) {
@@ -61,6 +77,14 @@ object Codecs {
             return json.getPrimitive<kotlin.Float>(field)
         }
 
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.Float {
+            return transcoder.readFloat(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.Float, field: kotlin.String) {
+            transcoder.writeFloat(format, field, value)
+        }
+
         override fun writeJson(json: JsonElement, value: kotlin.Float, field: kotlin.String) {
             json.asObjectOrThrow().addProperty(field, value)
         }
@@ -78,6 +102,14 @@ object Codecs {
 
         override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Long {
             return json.getPrimitive<kotlin.Long>(field)
+        }
+
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.Long {
+            return transcoder.readLong(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.Long, field: kotlin.String) {
+            transcoder.writeLong(format, field, value)
         }
 
         override fun writeJson(json: JsonElement, value: kotlin.Long, field: kotlin.String) {
@@ -100,6 +132,14 @@ object Codecs {
 
         override fun readJson(json: JsonElement, field: kotlin.String): java.util.UUID {
             return java.util.UUID.fromString(json.getPrimitive<kotlin.String>(field))
+        }
+
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): java.util.UUID {
+            return transcoder.readUUID(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: java.util.UUID, field: kotlin.String) {
+            transcoder.writeUUID(format, field, value)
         }
 
         override fun writeJson(json: JsonElement, value: java.util.UUID, field: kotlin.String) {
@@ -125,6 +165,14 @@ object Codecs {
 
         override fun readJson(json: JsonElement, field: kotlin.String): kotlin.ByteArray {
             return Base64.getDecoder().decode(json.getPrimitive<kotlin.String>(field))
+        }
+
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.ByteArray {
+            return transcoder.readByteArray(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.ByteArray, field: kotlin.String) {
+            transcoder.writeByteArray(format, field, value)
         }
 
         override fun writeJson(json: JsonElement, value: kotlin.ByteArray, field: kotlin.String) {
@@ -167,6 +215,14 @@ object Codecs {
             return json.getPrimitive<kotlin.Int>(field)
         }
 
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.Int {
+            return transcoder.readVarInt(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.Int, field: kotlin.String) {
+            transcoder.writeVarInt(format, field, value)
+        }
+
         override fun writeJson(json: JsonElement, value: kotlin.Int, field: kotlin.String) {
             json.asObjectOrThrow().addProperty(field, value)
         }
@@ -185,6 +241,14 @@ object Codecs {
 
         override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Boolean {
             return json.getPrimitive(field)
+        }
+
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.Boolean {
+            return transcoder.readBoolean(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.Boolean, field: kotlin.String) {
+            transcoder.writeBoolean(format, field, value)
         }
 
         override fun writeJson(json: JsonElement, value: kotlin.Boolean, field: kotlin.String) {
@@ -217,6 +281,14 @@ object Codecs {
             return json.getPrimitive<kotlin.String>(field)
         }
 
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.String {
+            return transcoder.readString(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.String, field: kotlin.String) {
+            return transcoder.writeString(format, field, value)
+        }
+
         override fun writeJson(json: JsonElement, value: kotlin.String, field: kotlin.String) {
             json.asObjectOrThrow().addProperty(field, value)
         }
@@ -233,6 +305,14 @@ object Codecs {
 
         override fun readJson(json: JsonElement, field: kotlin.String): kotlin.Int {
             return json.getPrimitive<kotlin.Int>(field)
+        }
+
+        override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: kotlin.String): kotlin.Int {
+            return transcoder.readInt(format, field)
+        }
+
+        override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: kotlin.Int, field: kotlin.String) {
+            transcoder.writeInt(format, field, value)
         }
 
         override fun writeJson(json: JsonElement, value: kotlin.Int, field: kotlin.String) {

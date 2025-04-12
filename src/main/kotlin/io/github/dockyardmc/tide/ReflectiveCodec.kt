@@ -53,6 +53,22 @@ class ReflectiveCodec<T : Any>(
         }
     }
 
+    override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): T {
+        val args = fields.map { arg ->
+            @Suppress("UNCHECKED_CAST")
+            (arg.codec as Codec<Any?>).readTranscoded(transcoder, format, arg.name)
+        }
+        return constructor.callBy(parameters.associateWith { parameter -> args[parameter.index] })
+    }
+
+    override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: T, field: String) {
+        fields.forEach { arg ->
+            val fieldValue = arg.getter(value)
+            @Suppress("UNCHECKED_CAST")
+            (arg.codec as Codec<Any?>).writeTranscoded(transcoder, format, fieldValue, arg.name)
+        }
+    }
+
     override fun writeNetwork(buffer: ByteBuf, value: T) {
         fields.forEach { field ->
             @Suppress("UNCHECKED_CAST")
@@ -102,4 +118,6 @@ class ReflectiveCodec<T : Any>(
             parameters.associateWith { parameter -> args[parameter.index] }
         )
     }
+
+
 }

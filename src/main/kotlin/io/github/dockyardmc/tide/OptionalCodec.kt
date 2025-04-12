@@ -41,6 +41,14 @@ class OptionalCodec<T>(val elementCodec: Codec<T>) : Codec<T?> {
         return elementCodec.readJson(jsonElementToRead, field)
     }
 
+    override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): T? {
+        return transcoder.readOptional<T>(format, field)
+    }
+
+    override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: T?, field: String) {
+        transcoder.writeOptional<T>(format, field, value)
+    }
+
     override fun writeJson(json: JsonElement, value: T?, field: String) {
 
         if (value != null) {

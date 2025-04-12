@@ -70,6 +70,14 @@ class MapCodec<K, V>(private val keyCodec: Codec<K>, private val valueCodec: Cod
         return map
     }
 
+    override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): Map<K, V> {
+        return transcoder.readMap<K, V>(format, field)
+    }
+
+    override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: Map<K, V>, field: String) {
+        transcoder.writeMap<K, V>(format, field, value)
+    }
+
     override fun writeJson(json: JsonElement, value: Map<K, V>, field: String) {
         var jsonArray: JsonArray = JsonArray()
 
