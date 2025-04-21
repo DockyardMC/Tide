@@ -4,128 +4,128 @@ import com.moandjiezana.toml.TomlWriter
 import io.github.dockyardmc.tide.Transcoder
 import java.lang.IllegalStateException
 import java.util.*
+import kotlin.jvm.java
 import kotlin.reflect.KClass
 
+object TomlTranscoder : Transcoder<Toml>() {
 
-object TomlTranscoder : Transcoder<TomlMap>() {
-
-    override fun writeInt(format: TomlMap, field: String, value: Int) {
+    override fun writeInt(format: Toml, field: String, value: Int) {
         format.put(field, value)
     }
 
-    override fun writeString(format: TomlMap, field: String, value: String) {
+    override fun writeString(format: Toml, field: String, value: String) {
         format.put(field, value)
     }
 
-    override fun writeBoolean(format: TomlMap, field: String, value: Boolean) {
+    override fun writeBoolean(format: Toml, field: String, value: Boolean) {
         format.put(field, value)
     }
 
-    override fun writeVarInt(format: TomlMap, field: String, value: Int) {
+    override fun writeVarInt(format: Toml, field: String, value: Int) {
         format.put(field, value)
     }
 
-    override fun writeByteArray(format: TomlMap, field: String, value: ByteArray) {
+    override fun writeByteArray(format: Toml, field: String, value: ByteArray) {
         format.put(field, value)
     }
 
-    override fun writeUUID(format: TomlMap, field: String, value: UUID) {
+    override fun writeUUID(format: Toml, field: String, value: UUID) {
         format.put(field, value)
     }
 
-    override fun writeLong(format: TomlMap, field: String, value: Long) {
+    override fun writeLong(format: Toml, field: String, value: Long) {
         format.put(field, value)
     }
 
-    override fun writeFloat(format: TomlMap, field: String, value: Float) {
+    override fun writeFloat(format: Toml, field: String, value: Float) {
         format.put(field, value)
     }
 
-    override fun writeDouble(format: TomlMap, field: String, value: Double) {
+    override fun writeDouble(format: Toml, field: String, value: Double) {
         format.put(field, value)
     }
 
-    override fun writeByte(format: TomlMap, field: String, value: Byte) {
+    override fun writeByte(format: Toml, field: String, value: Byte) {
         format.put(field, value)
     }
 
-    override fun <D> writeOptional(format: TomlMap, field: String, value: D?) {
+    override fun <D> writeOptional(format: Toml, field: String, value: D?) {
         if(value == null) return
         format.put(field, value)
     }
 
-    override fun <D> readOptional(format: TomlMap, field: String): D? {
+    override fun <D> readOptional(format: Toml, field: String): D? {
         return format.getOrNull(field)
     }
 
-    override fun <D> writeList(format: TomlMap, field: String, value: List<D>) {
+    override fun <D> writeList(format: Toml, field: String, value: List<D>) {
         format.put(field, value)
     }
 
-    override fun <D> readList(format: TomlMap, field: String): List<D> {
+    override fun <D> readList(format: Toml, field: String): List<D> {
         return format.get<List<D>>(field)
     }
 
-    override fun <K, V> writeMap(format: TomlMap, field: String, value: Map<K, V>) {
+    override fun <K, V> writeMap(format: Toml, field: String, value: Map<K, V>) {
         return
     }
 
-    override fun <K, V> readMap(format: TomlMap, field: String): Map<K, V> {
+    override fun <K, V> readMap(format: Toml, field: String): Map<K, V> {
         return mapOf()
     }
 
-    override fun <E : Enum<E>> writeEnum(kClass: KClass<out Enum<E>>, format: TomlMap, field: String, value: Enum<E>) {
+    override fun <E : Enum<E>> writeEnum(kClass: KClass<out Enum<E>>, format: Toml, field: String, value: Enum<E>) {
         format.put(field, value.name)
     }
 
-    override fun <E : Enum<E>> readEnum(kClass: KClass<out Enum<E>>, format: TomlMap, field: String): E {
+    override fun <E : Enum<E>> readEnum(kClass: KClass<out Enum<E>>, format: Toml, field: String): E {
         val name = format.get<String>(field)
         return kClass.java.enumConstants.first { constant -> constant.name == name } as E
     }
 
-    override fun readInt(format: TomlMap, field: String): Int {
-        TODO("Not yet implemented")
+    override fun readInt(format: Toml, field: String): Int {
+        return format.get<Int>(field)
     }
 
-    override fun readString(format: TomlMap, field: String): String {
-        TODO("Not yet implemented")
+    override fun readString(format: Toml, field: String): String {
+        return format.get<String>(field)
     }
 
-    override fun readBoolean(format: TomlMap, field: String): Boolean {
-        TODO("Not yet implemented")
+    override fun readBoolean(format: Toml, field: String): Boolean {
+        return format.get(field)
     }
 
-    override fun readVarInt(format: TomlMap, field: String): Int {
-        TODO("Not yet implemented")
+    override fun readVarInt(format: Toml, field: String): Int {
+        return format.get<Int>(field)
     }
 
-    override fun readByteArray(format: TomlMap, field: String): ByteArray {
-        TODO("Not yet implemented")
+    override fun readByteArray(format: Toml, field: String): ByteArray {
+        return format.get(field)
     }
 
-    override fun readUUID(format: TomlMap, field: String): UUID {
-        TODO("Not yet implemented")
+    override fun readUUID(format: Toml, field: String): UUID {
+        return format.get(field)
     }
 
-    override fun readLong(format: TomlMap, field: String): Long {
-        TODO("Not yet implemented")
+    override fun readLong(format: Toml, field: String): Long {
+        return format.get(field)
     }
 
-    override fun readFloat(format: TomlMap, field: String): Float {
-        TODO("Not yet implemented")
+    override fun readFloat(format: Toml, field: String): Float {
+        return format.get(field)
     }
 
-    override fun readDouble(format: TomlMap, field: String): Double {
-        TODO("Not yet implemented")
+    override fun readDouble(format: Toml, field: String): Double {
+        return format.get(field)
     }
 
-    override fun readByte(format: TomlMap, field: String): Byte {
-        TODO("Not yet implemented")
+    override fun readByte(format: Toml, field: String): Byte {
+        return format.get(field)
     }
 
 }
 
-class TomlMap() {
+class Toml() {
     private val map: MutableMap<String, Any> = mutableMapOf()
 
     fun put(key: String, any: Any) {

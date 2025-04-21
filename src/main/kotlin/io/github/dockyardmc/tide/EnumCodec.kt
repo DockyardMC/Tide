@@ -22,7 +22,7 @@ class EnumCodec<T : Enum<T>>(val kClass: KClass<out Enum<T>>) : Codec<Enum<T>> {
     }
 
     override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): Enum<T> {
-        return transcoder.readEnum<T>(format, field)
+        return transcoder.readEnum<T>(kClass, format, field)
     }
 
     override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: Enum<T>, field: String) {
