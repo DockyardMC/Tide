@@ -125,8 +125,7 @@ object TomlTranscoder : Transcoder<Toml>() {
 
 }
 
-class Toml() {
-    private val map: MutableMap<String, Any> = mutableMapOf()
+class Toml(private val map: MutableMap<String, Any> = mutableMapOf()) {
 
     fun put(key: String, any: Any) {
         map[key] = any
@@ -137,10 +136,16 @@ class Toml() {
     }
 
     fun <T> get(key: String): T {
-        return getOrNull<T>(key) ?: throw IllegalStateException("Value is null")
+        return getOrNull<T>(key) ?: throw IllegalStateException("Value with key `$key` is null (contents of map: $map)")
     }
 
     fun getAsString(): String {
         return TomlWriter().write(map)
+    }
+
+    companion object {
+        fun fromString(string: String): Toml {
+            return Toml(com.moandjiezana.toml.Toml().read(string).toMap().toMutableMap())
+        }
     }
 }
