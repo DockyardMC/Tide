@@ -23,23 +23,33 @@ class OptionalCodec<T>(val elementCodec: Codec<T>) : Codec<T?> {
     }
 
     override fun readJson(json: JsonElement, field: String): T? {
-        val jsonElementToRead: JsonElement?
-
-        if (field.isEmpty()) {
-            jsonElementToRead = json
+        val jsonElementToRead = if (field.isEmpty()) { // root node
+            json
         } else {
-            val jsonObject = json.asObjectOrThrow()
-            if (!jsonObject.has(field)) {
-                return null
-            }
-            jsonElementToRead = jsonObject.get(field)
+            json.asObjectOrThrow().get(field) ?: throw IllegalArgumentException("Field `$field` does not exist in current json: $json")
         }
 
-        if (jsonElementToRead == null || jsonElementToRead.isJsonNull) {
-            return null // treat explicit json null as kotlin null
-        }
-        return elementCodec.readJson(jsonElementToRead, field)
+        if (jsonElementToRead.isJsonNull) return null
+        return elementCodec.readJson(jsonElementToRead)
     }
+
+//    override fun readJson(json: JsonElement, field: String): T? {
+//        log("Reading $field in $json", LogType.FATAL)
+//        val jsonElementToRead = if (field.isEmpty()) {
+//            // Handle root element case
+//            if (json.isJsonNull) null else json
+//        } else {
+//            // Handle nested field case
+//            if (!json.isJsonObject) return null
+//            val jsonObject = json.asJsonObject
+//
+//            jsonObject.get(field)?.takeIf { jsonElement -> !jsonElement.isJsonNull }
+//        }
+//
+//        return jsonElementToRead?.let { jsonElement ->
+//            elementCodec.readJson(jsonElement)
+//        }
+//    }
 
     override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): T? {
         return transcoder.readOptional<T>(format, field)

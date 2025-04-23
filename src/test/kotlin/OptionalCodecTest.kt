@@ -7,45 +7,73 @@ import kotlin.test.assertEquals
 
 class OptionalCodecTest {
 
-    data class NullableTest(val nullable: String?) {
-
+    data class NullableTest(val nullable: String?, val time: Long?) {
         companion object {
-            val codec = Codec.of<NullableTest> {
+            val CODEC = Codec.of<NullableTest> {
                 field("nullable", Codecs.String.optional(), NullableTest::nullable)
+                field("time", Codecs.Long.optional(), NullableTest::time)
             }
         }
     }
 
-    private val nullableEmpty = NullableTest(null)
-    private val nullablePresent = NullableTest("hi")
+    data class NullableHolder(val someString: String, val list: MutableList<NullableTest>) {
+        companion object {
+            val CODEC = Codec.of<NullableHolder> {
+                field("some_string", Codecs.String, NullableHolder::someString)
+                field("list", NullableTest.CODEC.list(), NullableHolder::list)
+            }
+        }
+    }
+
+    private val nullableEmpty = NullableTest(null, 7897895L)
+    private val nullablePresent = NullableTest("hi", null)
+    private val holder = NullableHolder("tzest", mutableListOf(nullablePresent, nullableEmpty))
 
     @Test
     fun testNullableNetworkReadWrite() {
         testNullableNetwork(nullableEmpty)
         testNullableNetwork(nullablePresent)
+        testNullableHolderNetwork(holder)
     }
 
     @Test
     fun testNullableJsonReadWrite() {
         testNullableJson(nullableEmpty)
         testNullableJson(nullablePresent)
+        testNullableHolderJson(holder)
     }
 
+    private fun testNullableHolderNetwork(type: NullableHolder) {
+        val buffer = Unpooled.buffer()
+        NullableHolder.CODEC.writeNetwork(buffer, type)
+
+        val newNullable = NullableHolder.CODEC.readNetwork(buffer)
+        assertEquals(type, newNullable)
+        buffer.release()
+    }
+
+    private fun testNullableHolderJson(type: NullableHolder) {
+        val json = JsonObject()
+        NullableHolder.CODEC.writeJson(json, type)
+
+        val newNullable = NullableHolder.CODEC.readJson(json)
+        assertEquals(type, newNullable)
+    }
 
     private fun testNullableNetwork(type: NullableTest) {
         val buffer = Unpooled.buffer()
-        NullableTest.codec.writeNetwork(buffer, type)
+        NullableTest.CODEC.writeNetwork(buffer, type)
 
-        val newNullable = NullableTest.codec.readNetwork(buffer)
+        val newNullable = NullableTest.CODEC.readNetwork(buffer)
         assertEquals(type, newNullable)
         buffer.release()
     }
 
     private fun testNullableJson(type: NullableTest) {
         val json = JsonObject()
-        NullableTest.codec.writeJson(json, type)
+        NullableTest.CODEC.writeJson(json, type)
 
-        val newNullable = NullableTest.codec.readJson(json)
+        val newNullable = NullableTest.CODEC.readJson(json)
         assertEquals(type, newNullable)
     }
 }

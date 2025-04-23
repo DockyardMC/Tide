@@ -5,7 +5,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 
 fun JsonElement.asObjectOrThrow(): JsonObject {
-    if (this !is JsonObject) throw IllegalStateException("JsonElement is not JsonObject")
+    if (this !is JsonObject || !this.isJsonObject) throw IllegalStateException("JsonElement is not JsonObject")
     return this
 }
 

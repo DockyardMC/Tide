@@ -1,6 +1,7 @@
 package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
+import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.DecoderException
 import java.nio.charset.StandardCharsets

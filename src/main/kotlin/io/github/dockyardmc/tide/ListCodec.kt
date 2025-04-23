@@ -3,6 +3,7 @@ package io.github.dockyardmc.tide
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 
@@ -28,31 +29,27 @@ class ListCodec<T>(val elementCodec: Codec<T>) : Codec<List<T>> {
     override fun readJson(json: JsonElement, field: String): List<T> {
         val list = mutableListOf<T>()
 
-        if (field.isEmpty()) { // root node
+        if(field.isEmpty()) { // root node
             if (json !is JsonArray) throw IllegalStateException("JsonElement is not JsonArray, cannot read json as root node")
-            val tempObj = JsonObject()
             json.forEach { element ->
-                tempObj.add("value", element)
-                list.add(elementCodec.readJson(tempObj, "value"))
+                list.add(elementCodec.readJson(element))
             }
             return list
         }
 
         val jsonObject = json.asObjectOrThrow()
         if (!jsonObject.has(field)) {
-            throw IllegalArgumentException("Field '$field' does not exist")
-        }
-        val jsonElement = jsonObject.get(field)
-        if (!jsonElement.isJsonArray) {
-            throw IllegalArgumentException("Field '$field' is not json array")
+            throw IllegalArgumentException("Field '$field' does not exist in current json: $jsonObject")
         }
 
-        val jsonArray = jsonElement.asJsonArray
-        jsonArray.forEach { element ->
-            val tempObj = JsonObject()
-            tempObj.add("value", element)
-            list.add(elementCodec.readJson(tempObj, "value"))
+        val element = jsonObject.get(field) ?: throw IllegalArgumentException("Field `$field` does not exist in current json: $jsonObject!")
+        if(!element.isJsonArray) throw IllegalArgumentException("Field `$field` is not json array element! (json: $jsonObject)")
+        val jsonArray = element.asJsonArray!!
+
+        jsonArray.forEach { child ->
+            list.add(elementCodec.readJson(child))
         }
+
         return list
     }
 

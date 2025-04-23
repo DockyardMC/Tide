@@ -108,7 +108,7 @@ class ReflectiveCodec<T : Any>(
             if (json !is JsonObject) throw IllegalStateException("JsonElement is not JsonObject, cannot write json as root node")
             jsonToReadFrom = json
         } else {
-            jsonToReadFrom = json.asObjectOrThrow().getAsJsonObject(field)
+            jsonToReadFrom = json.asObjectOrThrow().get(field) ?: throw IllegalStateException("[field: $field] get is somehow null ($json) (is object: ${json.isJsonObject}, is primitive: ${json.isJsonPrimitive}, is null: ${json.isJsonNull})")
         }
         val args = fields.map { arg ->
             @Suppress("UNCHECKED_CAST")
