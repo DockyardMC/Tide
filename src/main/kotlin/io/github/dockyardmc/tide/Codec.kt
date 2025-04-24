@@ -2,6 +2,7 @@ package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
 import java.util.concurrent.atomic.AtomicInteger
@@ -155,7 +156,7 @@ interface Codec<T> {
                 MapCodec::class.companionObject
                 OptionalCodec::class.companionObject
             }
-            log("Load default codecs took ${time}ms")
+            log("\"Cache default codecs\" took ${time}ms", LogType.DEBUG)
         }
 
         val propertyCounter = AtomicInteger()
