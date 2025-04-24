@@ -3,11 +3,8 @@ package io.github.dockyardmc.tide
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import io.netty.buffer.ByteBuf
-import kotlin.reflect.KClass
 
 class OptionalCodec<T>(val elementCodec: Codec<T>) : Codec<T?> {
-
-    override val type: KClass<*> = elementCodec.type
 
     override fun readNetwork(buffer: ByteBuf): T? {
         val isPresent = buffer.readBoolean()

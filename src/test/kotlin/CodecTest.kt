@@ -24,28 +24,31 @@ class CodecTest {
 
     data class World(val name: String) {
         companion object {
-            val codec = Codec.of<World> {
-                field("name", Codecs.String, World::name)
-            }
+            val codec = Codec.of(
+                "name", Codecs.String, World::name,
+                ::World
+            )
         }
     }
 
     data class Vector3d(val x: Double, val y: Double, val z: Double) {
         companion object {
-            val codec = Codec.of<Vector3d> {
-                field("x", Codecs.Double, Vector3d::x)
-                field("y", Codecs.Double, Vector3d::y)
-                field("z", Codecs.Double, Vector3d::z)
-            }
+            val CODEC = Codec.of(
+                "x", Codecs.Double, Vector3d::x,
+                "y", Codecs.Double, Vector3d::y,
+                "z", Codecs.Double, Vector3d::z,
+                ::Vector3d
+            )
         }
     }
 
     data class Location(val position: Vector3d, val world: World) {
         companion object {
-            val codec = Codec.of<Location> {
-                field("position", Vector3d.codec, Location::position)
-                field("world", World.codec, Location::world)
-            }
+            val CODEC = Codec.of(
+                "position", Vector3d.CODEC, Location::position,
+                "world", World.codec, Location::world,
+                ::Location
+            )
         }
     }
 
@@ -56,12 +59,13 @@ class CodecTest {
         val location: Location,
     ) {
         companion object {
-            val codec = Codec.of<Player> {
-                field("username", Codecs.String, Player::username)
-                field("uuid", Codecs.UUID.optional(), Player::uuid)
-                field("display_skin_parts", Codec.enum(DisplayedSkinPart::class).mapAsKeyTo(Codecs.Boolean).optional(), Player::displayedSkinPart)
-                field("location", Location.codec, Player::location)
-            }
+            val codec = Codec.of(
+                "username", Codecs.String, Player::username,
+                "uuid", Codecs.UUID.optional(), Player::uuid,
+                "displayed_skin_parts", Codec.enum<DisplayedSkinPart>().mapAsKeyTo(Codecs.Boolean).optional(), Player::displayedSkinPart,
+                "location", Location.CODEC, Player::location,
+                ::Player
+            )
         }
     }
 
@@ -78,9 +82,10 @@ class CodecTest {
         }
 
         companion object {
-            val codec = Codec.of<WrappedByteArray> {
-                field("value", Codecs.ByteArray, WrappedByteArray::value)
-            }
+            val codec = Codec.of(
+                "value", Codecs.ByteArray, WrappedByteArray::value,
+                ::WrappedByteArray
+            )
         }
     }
 
@@ -104,18 +109,19 @@ class CodecTest {
         val boolean: Boolean,
     ) {
         companion object {
-            val codec = Codec.of<Test> {
-                field("player", Player.codec, Test::player)
-                field("int", Codecs.Int, Test::int)
-                field("double", Codecs.Double, Test::double)
-                field("long", Codecs.Long, Test::long)
-                field("byte", Codecs.Byte, Test::byte)
-                field("float", Codecs.Float, Test::float)
-                field("uuid", Codecs.UUID, Test::uuid)
-                field("byteArray", WrappedByteArray.codec, Test::byteArray)
-                field("enum", Codec.enum(TestEnum::class), Test::enum)
-                field("boolean", Codecs.Boolean, Test::boolean)
-            }
+            val codec = Codec.of(
+                "player", Player.codec, Test::player,
+                "int", Codecs.Int, Test::int,
+                "double", Codecs.Double, Test::double,
+                "long", Codecs.Long, Test::long,
+                "byte", Codecs.Byte, Test::byte,
+                "float", Codecs.Float, Test::float,
+                "uuid", Codecs.UUID, Test::uuid,
+                "byteArray", WrappedByteArray.codec, Test::byteArray,
+                "enum", Codec.enum<TestEnum>(), Test::enum,
+                "boolean", Codecs.Boolean, Test::boolean,
+                ::Test
+            )
         }
     }
 

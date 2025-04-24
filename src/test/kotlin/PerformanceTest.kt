@@ -2,7 +2,6 @@ import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
 import io.github.dockyardmc.tide.Codec
 import io.github.dockyardmc.tide.Codecs
-import io.github.dockyardmc.tide.StructCodec
 import io.netty.buffer.Unpooled
 import java.util.*
 import kotlin.system.measureTimeMillis
@@ -22,28 +21,31 @@ class PerformanceTest {
 
     data class World(val name: String) {
         companion object {
-            val codec = Codec.of<World> {
-                field("name", Codecs.String, World::name)
-            }
+            val codec = Codec.of(
+                "name", Codecs.String, World::name,
+                ::World
+            )
         }
     }
 
     data class Vector3d(val x: Double, val y: Double, val z: Double) {
         companion object {
-            val codec = Codec.of<Vector3d> {
-                field("x", Codecs.Double, Vector3d::x)
-                field("y", Codecs.Double, Vector3d::y)
-                field("z", Codecs.Double, Vector3d::z)
-            }
+            val CODEC = Codec.of(
+                "x", Codecs.Double, Vector3d::x,
+                "y", Codecs.Double, Vector3d::y,
+                "z", Codecs.Double, Vector3d::z,
+                ::Vector3d
+            )
         }
     }
 
     data class Location(val position: Vector3d, val world: World) {
         companion object {
-            val codec = Codec.of<Location> {
-                field("position", Vector3d.codec, Location::position)
-                field("world", World.codec, Location::world)
-            }
+            val CODEC = Codec.of(
+                "position", Vector3d.CODEC, Location::position,
+                "world", World.codec, Location::world,
+                ::Location
+            )
         }
     }
 
@@ -54,12 +56,13 @@ class PerformanceTest {
         val location: Location,
     ) {
         companion object {
-            val codec = Codec.of<Player> {
-                field("username", Codecs.String, Player::username)
-                field("uuid", Codecs.UUID.optional(), Player::uuid)
-                field("display_skin_parts", Codec.enum(DisplayedSkinPart::class).mapAsKeyTo(Codecs.Boolean).optional(), Player::displayedSkinPart)
-                field("location", Location.codec, Player::location)
-            }
+            val codec = Codec.of(
+                "username", Codecs.String, Player::username,
+                "uuid", Codecs.UUID.optional(), Player::uuid,
+                "displayed_skin_parts", Codec.enum<DisplayedSkinPart>().mapAsKeyTo(Codecs.Boolean).optional(), Player::displayedSkinPart,
+                "location", Location.CODEC, Player::location,
+                ::Player
+            )
         }
     }
 
@@ -76,9 +79,10 @@ class PerformanceTest {
         }
 
         companion object {
-            val codec = Codec.of<WrappedByteArray> {
-                field("value", Codecs.ByteArray, WrappedByteArray::value)
-            }
+            val codec = Codec.of(
+                "value", Codecs.ByteArray, WrappedByteArray::value,
+                ::WrappedByteArray
+            )
         }
     }
 
@@ -102,35 +106,38 @@ class PerformanceTest {
         val boolean: Boolean,
     ) {
         companion object {
-            val codec = Codec.of<Test> {
-                field("player", Player.codec, Test::player)
-                field("int", Codecs.Int, Test::int)
-                field("double", Codecs.Double, Test::double)
-                field("long", Codecs.Long, Test::long)
-                field("byte", Codecs.Byte, Test::byte)
-                field("float", Codecs.Float, Test::float)
-                field("uuid", Codecs.UUID, Test::uuid)
-                field("byteArray", WrappedByteArray.codec, Test::byteArray)
-                field("enum", Codec.enum(TestEnum::class), Test::enum)
-                field("boolean", Codecs.Boolean, Test::boolean)
-            }
-        }
-    }
-
-    data class DataHolder(val value: Boolean) {
-        companion object {
-            val struct = StructCodec.struct("player", Codecs.Boolean, DataHolder::value, ::DataHolder)
+            val codec = Codec.of(
+                "player", Player.codec, Test::player,
+                "int", Codecs.Int, Test::int,
+                "double", Codecs.Double, Test::double,
+                "long", Codecs.Long, Test::long,
+                "byte", Codecs.Byte, Test::byte,
+                "float", Codecs.Float, Test::float,
+                "uuid", Codecs.UUID, Test::uuid,
+                "byteArray", WrappedByteArray.codec, Test::byteArray,
+                "enum", Codec.enum<TestEnum>(), Test::enum,
+                "boolean", Codecs.Boolean, Test::boolean,
+                ::Test
+            )
         }
     }
 
     @org.junit.jupiter.api.Test
     fun testKotlin() {
+        Codec
         val time = measureTimeMillis {
             val uuid = UUID.fromString("0c9151e4-7083-418d-a29c-bbc58f7c741b")
             val player = Player("LukynkaCZE", null, mapOf(DisplayedSkinPart.HAT to true, DisplayedSkinPart.LEFT_PANTS to false), Location(Vector3d(0.0, 3.0, 6.9), World("main")))
             val testObject = Test(player, 69, 4.20, 6L, 0x4, 3.3f, uuid, WrappedByteArray(Unpooled.buffer().writeBoolean(true).array()), TestEnum.OPTION3, false)
-
         }
         log("Took ${time}ms", LogType.DEBUG)
+        val time2 = measureTimeMillis {
+            CodecTest().testObject
+        }
+        log("Second took ${time2}ms", LogType.DEBUG)
+        val time3 = measureTimeMillis {
+            CodecTest().testObject
+        }
+        log("Third took ${time3}ms", LogType.DEBUG)
     }
 }

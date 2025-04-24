@@ -7,10 +7,11 @@ import io.netty.handler.codec.DecoderException
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.experimental.inv
+import kotlin.reflect.KClass
 
 object Codecs {
 
-    object Byte : PrimitiveCodec<kotlin.Byte>(kotlin.Byte::class) {
+    object Byte : Codec<kotlin.Byte> {
 
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.Byte) {
             buffer.writeByte(value.toInt())
@@ -37,7 +38,7 @@ object Codecs {
         }
     }
 
-    object Double : PrimitiveCodec<kotlin.Double>(kotlin.Double::class) {
+    object Double : Codec<kotlin.Double> {
 
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.Double) {
             buffer.writeDouble(value)
@@ -64,7 +65,7 @@ object Codecs {
         }
     }
 
-    object Float : PrimitiveCodec<kotlin.Float>(kotlin.Float::class) {
+    object Float : Codec<kotlin.Float> {
 
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.Float) {
             buffer.writeFloat(value)
@@ -91,7 +92,7 @@ object Codecs {
         }
     }
 
-    object Long : PrimitiveCodec<kotlin.Long>(kotlin.Long::class) {
+    object Long : Codec<kotlin.Long> {
 
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.Long) {
             buffer.writeLong(value)
@@ -118,7 +119,7 @@ object Codecs {
         }
     }
 
-    object UUID : PrimitiveCodec<java.util.UUID>(java.util.UUID::class) {
+    object UUID : Codec<java.util.UUID> {
 
         override fun writeNetwork(buffer: ByteBuf, value: java.util.UUID) {
             Long.writeNetwork(buffer, value.mostSignificantBits)
@@ -149,7 +150,7 @@ object Codecs {
 
     }
 
-    object ByteArray : PrimitiveCodec<kotlin.ByteArray>(kotlin.ByteArray::class) {
+    object ByteArray : Codec<kotlin.ByteArray> {
 
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.ByteArray) {
             VarInt.writeNetwork(buffer, value.size)
@@ -182,7 +183,7 @@ object Codecs {
 
     }
 
-    object VarInt : PrimitiveCodec<kotlin.Int>(kotlin.Int::class) {
+    object VarInt : Codec<kotlin.Int> {
         private const val SEGMENT_BITS: kotlin.Byte = 0x7F
         private const val CONTINUE_BIT = 0x80
 
@@ -230,7 +231,7 @@ object Codecs {
 
     }
 
-    object Boolean : PrimitiveCodec<kotlin.Boolean>(kotlin.Boolean::class) {
+    object Boolean : Codec<kotlin.Boolean>{
 
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.Boolean) {
             buffer.writeBoolean(value)
@@ -258,7 +259,7 @@ object Codecs {
 
     }
 
-    object String : PrimitiveCodec<kotlin.String>(kotlin.String::class) {
+    object String : Codec<kotlin.String> {
 
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.String) {
 
@@ -295,7 +296,7 @@ object Codecs {
         }
     }
 
-    object Int : PrimitiveCodec<kotlin.Int>(kotlin.Int::class) {
+    object Int : Codec<kotlin.Int> {
         override fun writeNetwork(buffer: ByteBuf, value: kotlin.Int) {
             buffer.writeInt(value)
         }

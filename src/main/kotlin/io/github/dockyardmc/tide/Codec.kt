@@ -2,9 +2,12 @@ package io.github.dockyardmc.tide
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import cz.lukynka.prettylog.log
 import io.netty.buffer.ByteBuf
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
+import kotlin.reflect.full.companionObject
+import kotlin.system.measureTimeMillis
 
 
 /**
@@ -16,7 +19,6 @@ import kotlin.reflect.KClass
  * @param T The type representing this codec
  */
 interface Codec<T> {
-    val type: KClass<*>
 
     /**
      * Writes a given value as network type into a buffer
@@ -137,18 +139,26 @@ interface Codec<T> {
 
     companion object {
 
-        val propertyCounter = AtomicInteger()
-
-        /**
-         * Returns new [ReflectiveCodec] with provided fields
-         *
-         * @param T
-         * @param fields
-         * @return [ReflectiveCodec]
-         */
-        inline fun <reified T : Any> of(fields: List<Field<T>>): Codec<T> {
-            return ReflectiveCodec(T::class, fields)
+        init {
+            val time = measureTimeMillis {
+                Codecs.Int
+                Codecs.Double
+                Codecs.Float
+                Codecs.UUID
+                Codecs.ByteArray
+                Codecs.Byte
+                Codecs.Boolean
+                Codecs.VarInt
+                Codecs.String
+                EnumCodec::class.companionObject
+                ListCodec::class.companionObject
+                MapCodec::class.companionObject
+                OptionalCodec::class.companionObject
+            }
+            log("Load default codecs took ${time}ms")
         }
+
+        val propertyCounter = AtomicInteger()
 
         /**
          * Creates [ListCodec] from the provided codec
@@ -188,8 +198,8 @@ interface Codec<T> {
          * @return [EnumCodec]
          */
 
-        fun <T : Enum<T>> enum(kClass: KClass<out Enum<T>>): EnumCodec<T> {
-            return EnumCodec<T>(kClass)
+        inline fun <reified T> enum(): EnumCodec<T> {
+            return EnumCodec<T>(T::class as KClass<out Enum<*>>)
         }
 
 
@@ -197,7 +207,6 @@ interface Codec<T> {
             name1: String, codec1: Codec<P1>, getter1: (R) -> P1,
             constructor: (P1) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 return constructor.invoke(p1)
@@ -249,7 +258,6 @@ interface Codec<T> {
             name2: String, codec2: Codec<P2>, getter2: (R) -> P2,
             constructor: (P1, P2) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -308,7 +316,6 @@ interface Codec<T> {
             name3: String, codec3: Codec<P3>, getter3: (R) -> P3,
             constructor: (P1, P2, P3) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -374,7 +381,6 @@ interface Codec<T> {
             name4: String, codec4: Codec<P4>, getter4: (R) -> P4,
             constructor: (P1, P2, P3, P4) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -447,7 +453,6 @@ interface Codec<T> {
             name5: String, codec5: Codec<P5>, getter5: (R) -> P5,
             constructor: (P1, P2, P3, P4, P5) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -527,7 +532,6 @@ interface Codec<T> {
             name6: String, codec6: Codec<P6>, getter6: (R) -> P6,
             constructor: (P1, P2, P3, P4, P5, P6) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -614,7 +618,6 @@ interface Codec<T> {
             name7: String, codec7: Codec<P7>, getter7: (R) -> P7,
             constructor: (P1, P2, P3, P4, P5, P6, P7) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -708,7 +711,6 @@ interface Codec<T> {
             name8: String, codec8: Codec<P8>, getter8: (R) -> P8,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -809,7 +811,6 @@ interface Codec<T> {
             name9: String, codec9: Codec<P9>, getter9: (R) -> P9,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -917,7 +918,6 @@ interface Codec<T> {
             name10: String, codec10: Codec<P10>, getter10: (R) -> P10,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -1032,7 +1032,6 @@ interface Codec<T> {
             name11: String, codec11: Codec<P11>, getter11: (R) -> P11,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -1154,7 +1153,6 @@ interface Codec<T> {
             name12: String, codec12: Codec<P12>, getter12: (R) -> P12,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -1283,7 +1281,6 @@ interface Codec<T> {
             name13: String, codec13: Codec<P13>, getter13: (R) -> P13,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -1401,7 +1398,6 @@ interface Codec<T> {
 
         }
 
-
         fun <R, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14> of(
             name1: String, codec1: Codec<P1>, getter1: (R) -> P1,
             name2: String, codec2: Codec<P2>, getter2: (R) -> P2,
@@ -1419,7 +1415,6 @@ interface Codec<T> {
             name14: String, codec14: Codec<P14>, getter14: (R) -> P14,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -1562,7 +1557,6 @@ interface Codec<T> {
             name15: String, codec15: Codec<P15>, getter15: (R) -> P15,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -1712,7 +1706,6 @@ interface Codec<T> {
             name16: String, codec16: Codec<P16>, getter16: (R) -> P16,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -1869,7 +1862,6 @@ interface Codec<T> {
             name17: String, codec17: Codec<P17>, getter17: (R) -> P17,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -2033,7 +2025,6 @@ interface Codec<T> {
             name18: String, codec18: Codec<P18>, getter18: (R) -> P18,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17, P18) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -2204,7 +2195,6 @@ interface Codec<T> {
             name19: String, codec19: Codec<P19>, getter19: (R) -> P19,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17, P18, P19) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)
@@ -2381,7 +2371,6 @@ interface Codec<T> {
             name20: String, codec20: Codec<P20>, getter20: (R) -> P20,
             constructor: (P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17, P18, P19, P20) -> R,
         ): Codec<R> = object : Codec<R> {
-            override val type: KClass<*> = Codec::class
             override fun readNetwork(buffer: ByteBuf): R {
                 val p1 = codec1.readNetwork(buffer)
                 val p2 = codec2.readNetwork(buffer)

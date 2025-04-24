@@ -11,10 +11,11 @@ class ListCodecTest {
 
     data class Person(val name: String, val age: Int) {
         companion object {
-            val codec = Codec.of<Person> {
-                field("name", Codecs.String, Person::name)
-                field("age", Codecs.Int, Person::age)
-            }
+            val codec = Codec.of(
+                "name", Codecs.String, Person::name,
+                "age", Codecs.Int, Person::age,
+                ::Person
+            )
         }
     }
 

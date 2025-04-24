@@ -9,7 +9,6 @@ import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 
 class MapCodec<K, V>(private val keyCodec: Codec<K>, private val valueCodec: Codec<V>) : Codec<Map<K, V>> {
-    override val type: KClass<*> = Map::class
 
     override fun writeNetwork(buffer: ByteBuf, value: Map<K, V>) {
         Codecs.VarInt.writeNetwork(buffer, value.size)

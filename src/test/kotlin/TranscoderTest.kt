@@ -9,10 +9,11 @@ class TranscoderTest {
         val someOptionalInt: Int?,
     ) {
         companion object {
-            val codec = Codec.of<AnotherCoolClass> {
-                field("some_string", Codecs.String, AnotherCoolClass::someString)
-                field("some_optional_int", Codecs.VarInt, AnotherCoolClass::someOptionalInt)
-            }
+            val codec = Codec.of(
+                "some_string", Codecs.String, AnotherCoolClass::someString,
+                "some_optional_int", Codecs.VarInt.optional(), AnotherCoolClass::someOptionalInt,
+                ::AnotherCoolClass
+            )
         }
     }
 
@@ -21,19 +22,21 @@ class TranscoderTest {
         val age: Int
     ) {
         companion object {
-            val codec = Codec.of<Meower> {
-                field("accessories", Accessory.codec.list(), Meower::accessories)
-                field("age", Codecs.Int, Meower::age)
-            }
+            val codec = Codec.of(
+                "accessories", Accessory.codec.list(), Meower::accessories,
+                "age", Codecs.Int, Meower::age,
+                ::Meower
+            )
         }
     }
 
     data class Accessory(val name: String, val id: UUID) {
         companion object {
-            val codec = Codec.of<Accessory> {
-                field("name", Codecs.String, Accessory::name)
-                field("id", Codecs.UUID, Accessory::id)
-            }
+            val codec = Codec.of(
+                "name", Codecs.String, Accessory::name,
+                "id", Codecs.UUID, Accessory::id,
+                ::Accessory
+            )
         }
     }
 
@@ -51,11 +54,12 @@ class TranscoderTest {
         val enum: CoolClassType?
     ) {
         companion object {
-            val codec = Codec.of<CoolClass> {
-                field("another_object", AnotherCoolClass.codec, CoolClass::anotherObject)
-                field("meower_to_name_map", Meower.codec.mapAsKeyTo(Codecs.String), CoolClass::meowerToNameMap)
-                field("enum", Codec.enum(CoolClassType::class), CoolClass::enum)
-            }
+            val codec = Codec.of(
+                "another_object", AnotherCoolClass.codec, CoolClass::anotherObject,
+                "meower_to_name_map", Meower.codec.mapAsKeyTo(Codecs.String), CoolClass::meowerToNameMap,
+                "enum", Codec.enum<CoolClassType>().optional(), CoolClass::enum,
+                ::CoolClass
+            )
         }
     }
 

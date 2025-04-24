@@ -74,13 +74,13 @@ object TomlTranscoder : Transcoder<Toml>() {
         return mapOf()
     }
 
-    override fun <E : Enum<E>> writeEnum(kClass: KClass<out Enum<E>>, format: Toml, field: String, value: Enum<E>) {
-        format.put(field, value.name)
+    override fun <E> writeEnum(kClass: KClass<*>, format: Toml, field: String, value: E) {
+        format.put(field, (value as Enum<*>).name)
     }
 
-    override fun <E : Enum<E>> readEnum(kClass: KClass<out Enum<E>>, format: Toml, field: String): E {
+    override fun <E> readEnum(kClass: KClass<*>, format: Toml, field: String): E {
         val name = format.get<String>(field)
-        return kClass.java.enumConstants.first { constant -> constant.name == name } as E
+        return kClass.java.enumConstants.first { constant -> (constant as Enum<*>).name == name } as E
     }
 
     override fun readInt(format: Toml, field: String): Int {

@@ -43,9 +43,9 @@ abstract class Transcoder<T> {
     abstract fun <K, V> readMap(format: T, field: String): Map<K, V>
 
 
-    abstract fun <E : Enum<E>> writeEnum(kClass: KClass<out Enum<E>>, format: T, field: String, value: Enum<E>)
+    abstract fun <E> writeEnum(kClass: KClass<*>, format: T, field: String, value: E)
 
-    abstract fun <E : Enum<E>> readEnum(kClass: KClass<out Enum<E>>, format: T, field: String): E
+    abstract fun <E> readEnum(kClass: KClass<*>, format: T, field: String): E
 
     //-----------------------------------------------------------//
 

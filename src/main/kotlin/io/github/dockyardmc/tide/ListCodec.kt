@@ -8,7 +8,6 @@ import io.netty.buffer.ByteBuf
 import kotlin.reflect.KClass
 
 class ListCodec<T>(val elementCodec: Codec<T>) : Codec<List<T>> {
-    override val type: KClass<*> = List::class
 
     override fun readNetwork(buffer: ByteBuf): List<T> {
         val inner = mutableListOf<T>()

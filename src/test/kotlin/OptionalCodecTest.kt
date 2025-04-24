@@ -9,19 +9,21 @@ class OptionalCodecTest {
 
     data class NullableTest(val nullable: String?, val time: Long?) {
         companion object {
-            val CODEC = Codec.of<NullableTest> {
-                field("nullable", Codecs.String.optional(), NullableTest::nullable)
-                field("time", Codecs.Long.optional(), NullableTest::time)
-            }
+            val CODEC = Codec.of(
+                "nullable", Codecs.String.optional(), NullableTest::nullable,
+                "time", Codecs.Long.optional(), NullableTest::time,
+                ::NullableTest
+            )
         }
     }
 
-    data class NullableHolder(val someString: String, val list: MutableList<NullableTest>) {
+    data class NullableHolder(val someString: String, val list: List<NullableTest>) {
         companion object {
-            val CODEC = Codec.of<NullableHolder> {
-                field("some_string", Codecs.String, NullableHolder::someString)
-                field("list", NullableTest.CODEC.list(), NullableHolder::list)
-            }
+            val CODEC = Codec.of(
+                "some_string", Codecs.String, NullableHolder::someString,
+                "list", NullableTest.CODEC.list(), NullableHolder::list,
+                ::NullableHolder
+            )
         }
     }
 
