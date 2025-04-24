@@ -3,9 +3,8 @@ package io.github.dockyardmc.tide
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.netty.buffer.ByteBuf
+import java.lang.reflect.Constructor
 import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.full.primaryConstructor
 
 /**
  * Reflective codec, uses reflection to get constructors or field values of a class and either write them or read them and create a class
@@ -19,38 +18,41 @@ import kotlin.reflect.full.primaryConstructor
 class ReflectiveCodec<T : Any>(
     val kclass: KClass<T>,
     val fields: List<Field<T>>,
+//    val javaClass: Class<T>,
 ) : Codec<T> {
     override val type: KClass<*> = kclass
 
     /**
      * Constructor of the provided class, stored ahead of time to not slow down reading
      */
-    val constructor: KFunction<T> = kclass.primaryConstructor ?: throw IllegalArgumentException("No primary constructor")
+
+//    val constructor: KFunction<T> = kclass.primaryConstructor ?: throw IllegalArgumentException("No primary constructor")
+    val constructor: Constructor<T> = kclass.java.declaredConstructors.maxByOrNull { constructor -> constructor.parameterCount } as Constructor<T>
 
     /**
      * Parameters of the constructor, stored ahead of time to not slow down reading
      */
-    val parameters = constructor.parameters.sortedBy { parameter -> parameter.index }
+    val parameters = constructor.parameters.sortedBy { c -> constructor.parameters.indexOf(c) }
 
     // type checking
     init {
-        fields.forEachIndexed { i, field ->
-            val paramType = parameters[i].type.classifier as? KClass<*>
-                ?: throw IllegalArgumentException("Unsupported generic type")
-
-            val codecType = field.codec.type
-
-            val typeMatches = when {
-                codecType == Enum::class -> paramType.java.isEnum
-                else -> paramType == codecType
-            }
-
-            require(typeMatches) {
-                "Type mismatch for parameter ${parameters[i].name}: " +
-                        "Expected ${if (codecType == Enum::class) "Enum" else codecType.simpleName}, " +
-                        "found ${paramType.simpleName}"
-            }
-        }
+//        fields.forEachIndexed { i, field ->
+//            val paramType = parameters[i].type.classifier as? KClass<*>
+//                ?: throw IllegalArgumentException("Unsupported generic type")
+//
+//            val codecType = field.codec.type
+//
+//            val typeMatches = when {
+//                codecType == Enum::class -> paramType.java.isEnum
+//                else -> paramType == codecType
+//            }
+//
+//            require(typeMatches) {
+//                "Type mismatch for parameter ${parameters[i].name}: " +
+//                        "Expected ${if (codecType == Enum::class) "Enum" else codecType.simpleName}, " +
+//                        "found ${paramType.simpleName}"
+//            }
+//        }
     }
 
     override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): T {
@@ -58,7 +60,7 @@ class ReflectiveCodec<T : Any>(
             @Suppress("UNCHECKED_CAST")
             (arg.codec as Codec<Any?>).readTranscoded(transcoder, format, arg.name)
         }
-        return constructor.callBy(parameters.associateWith { parameter -> args[parameter.index] })
+        return constructor.newInstance(parameters.associateWith { parameter -> args[parameters.indexOf(parameter)] })
     }
 
     override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: T, field: String) {
@@ -81,8 +83,8 @@ class ReflectiveCodec<T : Any>(
             @Suppress("UNCHECKED_CAST")
             (field.codec as Codec<Any?>).readNetwork(buffer)
         }
-        return constructor.callBy(parameters.associateWith { parameter -> args[parameter.index] })
-    }
+//        return constructor.callBy(parameters.associateWith { parameter -> args[parameter.index] })
+        return constructor.newInstance(parameters.associateWith { parameter -> args[parameters.indexOf(parameter)] })}
 
     override fun writeJson(json: JsonElement, value: T, field: String) {
         val nestedJson = JsonObject()
@@ -114,9 +116,10 @@ class ReflectiveCodec<T : Any>(
             @Suppress("UNCHECKED_CAST")
             (arg.codec as Codec<Any?>).readJson(jsonToReadFrom, arg.name)
         }
-        return constructor.callBy(
-            parameters.associateWith { parameter -> args[parameter.index] }
-        )
+//        return constructor.callBy(
+//            parameters.associateWith { parameter -> args[parameter.index] }
+//        )
+        return constructor.newInstance(parameters.associateWith { parameter -> args[parameters.indexOf(parameter)] })
     }
 
 

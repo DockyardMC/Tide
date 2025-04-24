@@ -15,6 +15,10 @@ class CodecBuilder<T> {
         fields.add(Field<T>(name, codec, getter))
     }
 
+    fun constructor() {
+
+    }
+
     /**
      * Creates a field from [codec] and [getter] and generated name ("property0", "property1" etc.) and adds it to the final [ReflectiveCodec]
      *
