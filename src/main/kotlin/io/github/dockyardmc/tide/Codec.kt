@@ -115,6 +115,10 @@ interface Codec<T> {
         return Companion.list(this)
     }
 
+    fun mutableList(): Codec<MutableList<T>> {
+        return Companion.mutableList(this)
+    }
+
     /**
      * Turns the field into a [MapCodec] of key (current field codec) and value (provided codec)
      *
@@ -126,6 +130,10 @@ interface Codec<T> {
         return Companion.map(this, valueCodec)
     }
 
+    fun <V> mutableMapAsKeyTo(valueCodec: Codec<V>): Codec<MutableMap<T, V>> {
+        return Companion.mutableMap(this, valueCodec)
+    }
+
     /**
      * Turns the field into a [MapCodec] of key (provided codec) and value (current field codec)
      *
@@ -135,6 +143,10 @@ interface Codec<T> {
      */
     fun <K> mapAsValueTo(keyCodec: Codec<K>): Codec<Map<K, T>> {
         return Companion.map(keyCodec, this)
+    }
+
+    fun <K> mutableMapAsValueTo(keyCodec: Codec<K>): Codec<MutableMap<K, T>> {
+        return Companion.mutableMap(keyCodec, this)
     }
 
 
