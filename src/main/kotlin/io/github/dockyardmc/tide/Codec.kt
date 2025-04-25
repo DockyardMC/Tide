@@ -171,6 +171,10 @@ interface Codec<T> {
             return ListCodec<T>(codec)
         }
 
+        fun <T> mutableList(codec: Codec<T>): Codec<MutableList<T>> {
+            return MutableListCodec<T>(codec)
+        }
+
         /**
          * Creates [MapCodec] from the provided key and value codecs
          *
@@ -181,6 +185,11 @@ interface Codec<T> {
         fun <K, V> map(keyCodec: Codec<K>, valueCodec: Codec<V>): Codec<Map<K, V>> {
             return MapCodec<K, V>(keyCodec, valueCodec)
         }
+
+        fun <K, V> mutableMap(keyCodec: Codec<K>, valueCodec: Codec<V>): Codec<MutableMap<K, V>> {
+            return MutableMapCodec<K, V>(keyCodec, valueCodec)
+        }
+
 
         /**
          * Creates [OptionalCodec] from the provided codec
