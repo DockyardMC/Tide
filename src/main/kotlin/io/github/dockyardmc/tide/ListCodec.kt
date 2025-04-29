@@ -53,11 +53,11 @@ class ListCodec<T>(val elementCodec: Codec<T>) : Codec<List<T>> {
     }
 
     override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): List<T> {
-        return transcoder.readList(format, field)
+        return transcoder.readList(format, field, elementCodec)
     }
 
     override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: List<T>, field: String) {
-        transcoder.writeList(format, field, value)
+        transcoder.writeList(format, field, value, elementCodec)
     }
 
     override fun writeJson(json: JsonElement, value: List<T>, field: String) {

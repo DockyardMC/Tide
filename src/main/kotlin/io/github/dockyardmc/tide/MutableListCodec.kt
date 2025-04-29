@@ -51,11 +51,11 @@ class MutableListCodec<T>(val elementCodec: Codec<T>) : Codec<MutableList<T>> {
     }
 
     override fun <A> readTranscoded(transcoder: Transcoder<A>, format: A, field: String): MutableList<T> {
-        return transcoder.readList<T>(format, field).toMutableList()
+        return transcoder.readList<T>(format, field, elementCodec).toMutableList()
     }
 
     override fun <A> writeTranscoded(transcoder: Transcoder<A>, format: A, value: MutableList<T>, field: String) {
-        transcoder.writeList(format, field, value)
+        transcoder.writeList(format, field, value, elementCodec)
     }
 
     override fun writeJson(json: JsonElement, value: MutableList<T>, field: String) {
