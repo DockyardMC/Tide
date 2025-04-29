@@ -1,13 +1,14 @@
 package io.github.dockyardmc.tide.transcoders
 
 import com.moandjiezana.toml.TomlWriter
+import io.github.dockyardmc.tide.Codec
 import io.github.dockyardmc.tide.Transcoder
 import java.lang.IllegalStateException
 import java.util.*
 import kotlin.jvm.java
 import kotlin.reflect.KClass
 
-object TomlTranscoder : Transcoder<Toml>() {
+object TomlTranscoder : Transcoder<Toml> {
 
     override fun writeInt(format: Toml, field: String, value: Int) {
         format.put(field, value)
@@ -49,28 +50,28 @@ object TomlTranscoder : Transcoder<Toml>() {
         format.put(field, value)
     }
 
-    override fun <D> writeOptional(format: Toml, field: String, value: D?) {
+    override fun <D> writeOptional(format: Toml, field: String, value: D?, codec: Codec<D>) {
         if(value == null) return
         format.put(field, value)
     }
 
-    override fun <D> readOptional(format: Toml, field: String): D? {
+    override fun <D> readOptional(format: Toml, field: String, codec: Codec<D>): D? {
         return format.getOrNull(field)
     }
 
-    override fun <D> writeList(format: Toml, field: String, value: List<D>) {
+    override fun <D> writeList(format: Toml, field: String, value: List<D>, codec: Codec<D>) {
         format.put(field, value)
     }
 
-    override fun <D> readList(format: Toml, field: String): List<D> {
+    override fun <D> readList(format: Toml, field: String, codec: Codec<D>): List<D> {
         return format.get<List<D>>(field)
     }
 
-    override fun <K, V> writeMap(format: Toml, field: String, value: Map<K, V>) {
+    override fun <K, V> writeMap(format: Toml, field: String, value: Map<K, V>, keyCodec: Codec<K>, valueCodec: Codec<V>) {
         return
     }
 
-    override fun <K, V> readMap(format: Toml, field: String): Map<K, V> {
+    override fun <K, V> readMap(format: Toml, field: String, keyCodec: Codec<K>, valueCodec: Codec<V>): Map<K, V> {
         return mapOf()
     }
 

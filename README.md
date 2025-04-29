@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.dockyardmc:tide:1.0")
+    implementation("io.github.dockyardmc:tide:1.7")
 }
 ```
 ---
