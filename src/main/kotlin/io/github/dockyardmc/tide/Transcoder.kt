@@ -1,5 +1,6 @@
 package io.github.dockyardmc.tide
 
+//the coder is WHAT? 🏳️‍⚧️🏳️‍⚧️🏳️‍⚧️
 interface Transcoder<T> {
     fun encodeNull(): T
 
@@ -77,7 +78,7 @@ interface Transcoder<T> {
         return longs.toLongArray()
     }
 
-    fun <O> convertTo(coder: Transcoder<O>, value: T): O
+    fun <D> convertTo(coder: Transcoder<D>, value: T): D
 
     interface ListBuilder<T> {
         fun add(value: T): ListBuilder<T>
