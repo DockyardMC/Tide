@@ -1,72 +1,101 @@
 package io.github.dockyardmc.tide
 
-import java.util.UUID
-import kotlin.reflect.KClass
-
-//my coder is WHAT? 🏳️‍⚧️🏳️‍⚧️🏳️‍⚧️
 interface Transcoder<T> {
+    fun encodeNull(): T
 
-    fun writeInt(format: T, field: String, value: Int)
+    fun encodeBoolean(value: Boolean): T
+    fun decodeBoolean(value: T): Boolean
 
-    fun writeString(format: T, field: String, value: String)
+    fun encodeByte(value: Byte): T
+    fun decodeByte(value: T): Byte
 
-    fun writeBoolean(format: T, field: String, value: Boolean)
+    fun encodeShort(value: Short): T
+    fun decodeShort(value: T): Short
 
-    fun writeVarInt(format: T, field: String, value: Int)
+    fun encodeInt(value: Int): T
+    fun decodeInt(value: T): Int
 
-    fun writeByteArray(format: T, field: String, value: ByteArray)
+    fun encodeLong(value: Long): T
+    fun decodeLong(value: T): Long
 
-    fun writeUUID(format: T, field: String, value: UUID)
+    fun encodeFloat(value: Float): T
+    fun decodeFloat(value: T): Float
 
-    fun writeLong(format: T, field: String, value: Long)
+    fun encodeDouble(value: Double): T
+    fun decodeDouble(value: T): Double
 
-    fun writeFloat(format: T, field: String, value: Float)
+    fun encodeString(value: String): T
+    fun decodeString(value: T): String
 
-    fun writeDouble(format: T, field: String, value: Double)
+    fun encodeList(size: Int): ListBuilder<T>
+    fun decodeList(value: T): List<T>
+    fun emptyList() = encodeList(0).build()
 
-    fun writeByte(format: T, field: String, value: Byte)
+    fun encodeMap(): VirtualMapBuilder<T>
+    fun decodeMap(value: T): VirtualMap<T>
+    fun emptyMap() = encodeMap().build()
 
-    //-----------------------------------------------------------//
+    fun encodeByteArray(value: ByteArray): T {
+        val list = encodeList(value.size)
+        value.forEach { byte -> list.add(encodeByte(byte)) }
+        return list.build()
+    }
 
-    fun <D> writeOptional(format: T, field: String, value: D?, codec: Codec<D>)
+    fun decodeByteArray(value: T): ByteArray {
+        val bytes = mutableListOf<Byte>()
+        decodeList(value).forEach { item ->
+            bytes.add(decodeByte(item))
+        }
+        return bytes.toByteArray()
+    }
 
-    fun <D> readOptional(format: T, field: String, codec: Codec<D>): D?
+    fun encodeIntArray(value: IntArray): T {
+        val list = encodeList(value.size)
+        value.forEach { int -> list.add(encodeInt(int)) }
+        return list.build()
+    }
 
+    fun decodeIntArray(value: T): IntArray {
+        val ints = mutableListOf<Int>()
+        decodeList(value).forEach { item ->
+            ints.add(decodeInt(item))
+        }
+        return ints.toIntArray()
+    }
 
-    fun <D> writeList(format: T, field: String, value: List<D>, codec: Codec<D>)
+    fun encodeLongArray(value: LongArray): T {
+        val list = encodeList(value.size)
+        value.forEach { int -> list.add(encodeLong(int)) }
+        return list.build()
+    }
 
-    fun <D> readList(format: T, field: String, codec: Codec<D>): List<D>
+    fun decodeLongArray(value: T): LongArray {
+        val longs = mutableListOf<Long>()
+        decodeList(value).forEach { item ->
+            longs.add(decodeLong(item))
+        }
+        return longs.toLongArray()
+    }
 
+    fun <O> convertTo(coder: Transcoder<O>, value: T): O
 
-    fun <K, V> writeMap(format: T, field: String, value: Map<K, V>, keyCodec: Codec<K>, valueCodec: Codec<V>)
+    interface ListBuilder<T> {
+        fun add(value: T): ListBuilder<T>
+        fun build(): T
+    }
 
-    fun <K, V> readMap(format: T, field: String, keyCodec: Codec<K>, valueCodec: Codec<V>): Map<K, V>
+    interface VirtualMap<T> {
+        fun getKeys(): Collection<String>
+        fun hasValue(key: String)
+        fun getValue(key: String)
 
+        val size get() = getKeys().size
+        val isEmpty get() = getKeys().isEmpty()
+    }
 
-    fun <E> writeEnum(kClass: KClass<*>, format: T, field: String, value: E)
-
-    fun <E> readEnum(kClass: KClass<*>, format: T, field: String): E
-
-    //-----------------------------------------------------------//
-
-    fun readInt(format: T, field: String): Int
-
-    fun readString(format: T, field: String): String
-
-    fun readBoolean(format: T, field: String): Boolean
-
-    fun readVarInt(format: T, field: String): Int
-
-    fun readByteArray(format: T, field: String): ByteArray
-
-    fun readUUID(format: T, field: String): UUID
-
-    fun readLong(format: T, field: String): Long
-
-    fun readFloat(format: T, field: String): Float
-
-    fun readDouble(format: T, field: String): Double
-
-    fun readByte(format: T, field: String): Byte
-
+    interface VirtualMapBuilder<T> {
+        fun put(key: T, value: T): VirtualMapBuilder<T>
+        fun put(key: String, value: T): VirtualMapBuilder<T>
+        fun build(): T
+    }
 }
