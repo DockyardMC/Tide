@@ -7,134 +7,93 @@
 [![Discord](https://img.shields.io/discord/1242845647892123650?label=Discord%20Server&color=%237289DA&style=for-the-badge&logo=discord&logoColor=%23FFFFFF)](https://discord.gg/SA9nmfMkdc)
 [![Static Badge](https://img.shields.io/badge/Donate-Ko--Fi-pink?style=for-the-badge&logo=ko-fi&logoColor=%23FFFFFF&color=%23ff70c8)](https://ko-fi.com/LukynkaCZE)
 
-Tide is a Kotlin codec library that allows for serializing to network protocol and JSON while allowing other formats to be integrated via use custom Transcoders. 
+Tide is a Kotlin Codecs library inspired by Mojang's [DataFixerUpper](https://github.com/Mojang/DataFixerUpper) that
+allows for serializing both network and custom objects via use of transcoders (Json, NBT, etc.)
 
-It is purpose built for the [DockyardMC](https://github.com/DockyardMC/Dockyard) project which is reimplementation of the Minecraft server protocol so **some primitive types like **`Strings`**, **`Lists`** and **`Maps`** are not using the standard format, but they are following the Minecraft protocol's implementation**
+It is purpose built for the [DockyardMC](https://github.com/DockyardMC/Dockyard) project which is reimplementation of
+the Minecraft server protocol so **some primitive types like **`Strings`**, **`Lists`** and **`Maps`** are not using the
+standard format, but they are following the Minecraft protocol's implementation**
 
 ## Installation
 
 <img src="https://cdn.worldvectorlogo.com/logos/kotlin-2.svg" width="16px"></img>
 **Kotlin DSL**
+
 ```kotlin
 repositories {
-    maven {
-        name = "devOS"
-        url = uri("https://mvn.devos.one/releases")
-    }
+    maven("https://mvn.devos.one/releases")
 }
 
 dependencies {
-    implementation("io.github.dockyardmc:tide:1.7")
+    implementation("io.github.dockyardmc:tide:<version>")
 }
 ```
+
 ---
 
 ## Usage
 
 You can create a codec like this:
+
 ```kotlin
-data class Person(val name: String, val age: Int) {
+data class Player(val username: String, val uuid: UUID) {
     companion object {
-        val codec = Codec.of<Person> {
-            field("name", Primitives.String, Person::name)
-            field("age", Primitives.Int, Person::age)
-        }
+        // Network serialization into netty ByteBuf
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.STRING, Player::username,
+            StreamCodec.UUID, Player::uuid,
+            ::Player
+        )
+
+        // Custom serialization into JSON, NBT, etc.
+        val CODEC = StructCodec.of(
+            "username", Codec.STRING, Player::username,
+            "uuid", Codec.UUID, Player::uuid,
+            ::Player
+        )
     }
 }
 ```
-You can either serialize it into a network type by calling the `Codec#writeNetwork` or into json by calling `Codec#writeJson`
+
+And then you can either use the `STREAM_CODEC` to write to network buffer:
+```kotlin
+fun writeToNetwork() {
+    val buffer = Unpooled.buffer()
+    val player = Player("LukynkaCZE", UUID.fromString("0c9151e4-7083-418d-a29c-bbc58f7c741b"))
+    Player.STREAM_CODEC.write(buffer, player)
+}
+```
+or use the `CODEC` to write to custom format:
+```kotlin
+fun writeJson() {
+    val player = Player("LukynkaCZE", UUID.randomUUID())
+    val json = Player.CODEC.encode(JsonTranscoder, player)
+}
+```
 
 ---
 
 You can include other codecs inside a codec to create more complex types:
 
 ```kotlin
-data class Bus(val model: String, val driver: Person, val passengers: List<Person>) {
+data class Bus(val model: String, val driver: Player, val passengers: List<Player>) {
     companion object {
-        val codec = Codec.of<Bus> {
-            field("name", Primitives.String, Bus::model)
-            field("driver", Person.codec, Bus::driver)
-            field("passengers", Person.codec.list(), Bus::passengers)
-        }
+        val STREAM_CODEC = StreamCodec.of(
+            StreamCodec.STRING, Bus::model,
+            Player.STREAM_CODEC, Bus::driver,
+            Player.STREAM_CODEC.list(), Bus::passengers,
+            ::Bus
+        )
+
+        val CODEC = StructCodec.of(
+            "model", Codec.STRING, Bus::model,
+            "driver", Player.CODEC, Bus::driver,
+            "passengers", Player.CODEC.list(), Bus::passengers,
+            ::Bus
+        )
     }
 }
 ```
-
 ---
 
-To use lists you can simply call `Codec#list` on existing codec like this:
-
-```kotlin
-data class Book(val pages: List<String>) {
-    companion object {
-        val codec = Codec.of<Book> {
-            field("pages", Primitives.String.list(), Book::pages)
-        }
-    }
-}
-```
-
----
-
-To use maps, you can either use `Codec#mapAsKeyTo` which will create map of the current codec as key and provided codec as value or Codec#mapAsValueTo which will use the current coded as value and provided coded as key:
-
-```kotlin
-data class WarehouseInventory(val iceCreamFlavours: Map<String, Int>, val cookieFlavours: Map<String, Int>) {
-    companion object {
-        val codec = Codec.of<WarehouseInventory> {
-            field("ice_cream_flavours", Primitives.String.mapAsKeyTo(Primitives.VarInt), WarehouseInventory::iceCreamFlavours) //uses current as key of the map 
-            field("cookie_flavours", Primitives.Int.mapAsValueTo(Primitives.String), WarehouseInventory::cookieFlavours) // uses current as value of the map
-        }
-    }
-}
-```
-
----
-
-Optionals are Minecraft protocol specific type. They represent the Java `Optional<T>` class. Optionals in protocol consist of a `boolean` field which indicates if the value is present or not and the actual value. To make things simple, Tide returns **nullable values** instead of the java `Optional<T>` classes
-
-You can use the `Codec#optional` to make the field optional:
-
-```kotlin
-data class Book(val pages: List<String>, val synopsis: String?) {
-    companion object {
-        val codec = Codec.of<Book> {
-            field("pages", Primitives.String.list(), Book::pages)
-            field("synopsis", Primitives.String.optional(), Book::synopsis)
-        }
-    }
-}
-```
-
----
-
-Enums are a special case because in the Minecraft protocol they are represented by VarInt type which is a variable length integer. The value is the ordinal (the index in the entries) of the enum value
-
-You will need to use `Codec#enum` to create this codec which has a class field to provide the class of the enum for inner reflection shenanigans:
-
-```kotlin
-data class Book(val pages: List<String>, val synopsis: String?, val type: Book.Type) {
-
-    enum class Type {
-        HORROR,
-        SCI_FI,
-        MEDIEVAL,
-        FANTASY,
-        FICTION,
-        ADVENTURE,
-        THRILLER,
-        MANGA,
-        HENTAI
-    }
-
-    companion object {
-        val codec = Codec.of<Book> {
-            field("pages", Primitives.String.list(), Book::pages)
-            field("synopsis", Primitives.String.optional(), Book::synopsis)
-            field("type", Codec.enum(Book.Type::class), Book::type)
-        }
-    }
-}
-```
-
-
+You can also easily implement your own Transcoders by implementing the `Transcoder` interface
