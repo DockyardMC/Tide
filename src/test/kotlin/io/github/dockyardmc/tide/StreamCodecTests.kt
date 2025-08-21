@@ -49,5 +49,4 @@ class StreamCodecTests {
         val decoded = Player.STREAM_CODEC.read(buffer)
         assertEquals(player, decoded)
     }
-
 }
