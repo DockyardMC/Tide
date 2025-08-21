@@ -11,7 +11,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
-class BasicCodecTest {
+class StructCodecTests {
 
     data class Person(val name: String, val data: PersonData) {
         companion object {

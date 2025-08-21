@@ -1,8 +1,6 @@
 package io.github.dockyardmc.tide.transcoder
 
 import com.google.gson.*
-import cz.lukynka.prettylog.log
-import io.github.dockyardmc.tide.codec.Codec
 
 object JsonTranscoder : Transcoder<JsonElement> {
 
@@ -54,7 +52,6 @@ object JsonTranscoder : Transcoder<JsonElement> {
             override fun build(): JsonElement {
                 return jsonList
             }
-
         }
     }
 
