@@ -10,8 +10,8 @@ class OptionalStreamCodec<T>(val inner: StreamCodec<T>) : StreamCodec<T?> {
     }
 
     override fun read(buffer: ByteBuf): T? {
-        val isNull = StreamCodec.BOOLEAN.read(buffer)
-        return if (!isNull) inner.read(buffer) else null
+        val isPresent = StreamCodec.BOOLEAN.read(buffer)
+        return if (isPresent) inner.read(buffer) else null
     }
 
 }
