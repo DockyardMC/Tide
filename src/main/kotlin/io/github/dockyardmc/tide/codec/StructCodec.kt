@@ -951,7 +951,7 @@ interface StructCodec<R> : Codec<R> {
         private fun <D, T> put(transcoder: Transcoder<D>, codec: Codec<T>, map: Transcoder.VirtualMapBuilder<D>, key: String, value: T): D {
 
             if (key == INLINE) {
-                val encodeCodec: Codec<T> = if (codec is OptionalCodec<*>) (codec.inner as Codec<T>) else if (codec is DefaultCodec<T>) codec.inner else codec
+                val encodeCodec: Codec<T> = if (codec is OptionalCodec<*>) codec.inner as Codec<T> else if (codec is DefaultCodec<T>) codec.inner else codec
                 if (encodeCodec !is StructCodec<T>) {
                     throw Codec.EncodingException("provided codec for $key is not StructCodec")
                 }

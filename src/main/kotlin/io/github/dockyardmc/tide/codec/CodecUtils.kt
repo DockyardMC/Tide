@@ -36,7 +36,7 @@ object CodecUtils {
 
         // decode only one byte first as this is the most common size of varints
         var current = buffer.readByte().toInt()
-        if ((current and CONTINUE_BIT) != 128) {
+        if (current and CONTINUE_BIT != 128) {
             return current
         }
 
