@@ -1,6 +1,6 @@
 import cz.lukynka.prettylog.LogType
 import cz.lukynka.prettylog.log
-import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.codec.Codec
 import io.github.dockyardmc.tide.Codecs
 import io.netty.buffer.Unpooled
 import java.util.*

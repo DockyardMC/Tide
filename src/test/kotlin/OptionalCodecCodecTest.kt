@@ -1,11 +1,11 @@
 import com.google.gson.JsonObject
-import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.codec.Codec
 import io.github.dockyardmc.tide.Codecs
 import io.netty.buffer.Unpooled
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class OptionalCodecTest {
+class OptionalCodecCodecTest {
 
     data class NullableTest(val nullable: String?, val time: Long?) {
         companion object {

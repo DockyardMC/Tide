@@ -1,5 +1,5 @@
 import com.google.gson.JsonArray
-import io.github.dockyardmc.tide.Codec
+import io.github.dockyardmc.tide.codec.Codec
 import io.github.dockyardmc.tide.Codecs
 import io.netty.buffer.Unpooled
 import kotlin.test.Test

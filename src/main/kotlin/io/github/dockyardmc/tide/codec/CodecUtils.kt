@@ -1,4 +1,4 @@
-package io.github.dockyardmc.tide
+package io.github.dockyardmc.tide.codec
 
 import java.util.*
 

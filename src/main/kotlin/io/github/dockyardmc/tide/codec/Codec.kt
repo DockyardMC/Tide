@@ -1,5 +1,6 @@
-package io.github.dockyardmc.tide
+package io.github.dockyardmc.tide.codec
 
+import io.github.dockyardmc.tide.types.Either
 import java.util.*
 
 interface Codec<T> {
@@ -8,6 +9,22 @@ interface Codec<T> {
 
     fun <S> transform(from: (T) -> S, to: (S) -> T): TransformativeCodec<T, S> {
         return TransformativeCodec<T, S>(this, from, to)
+    }
+
+    fun list(): Codec<List<T>> {
+        return ListCodec<T>(this)
+    }
+
+    fun <V> mapValue(valueCodec: Codec<V>): Codec<Map<T, V>> {
+        return MapCodec<T, V>(this, valueCodec)
+    }
+
+    fun optional(): Codec<T?> {
+        return OptionalCodec<T>(this)
+    }
+
+    fun default(default: T): Codec<T> {
+        return DefaultCodec<T>(this, default)
     }
 
     companion object {
@@ -75,6 +92,18 @@ interface Codec<T> {
                 { value -> E::class.java.enumConstants.first { const -> const.name == value.uppercase() } },
                 { value -> value.name.lowercase() }
             )
+        }
+
+        fun <L, R> either(leftCodec: Codec<L>, rightCodec: Codec<R>): Codec<Either<L, R>> {
+            return EitherCodec(leftCodec, rightCodec)
+        }
+
+        fun <T> recursive(self: (Codec<T>) -> Codec<T>): RecursiveCodec<T> {
+            return RecursiveCodec<T>(self)
+        }
+
+        fun <T> forwardRef(supplier: () -> Codec<T>): ForwardRefCodec<T> {
+            return ForwardRefCodec<T>(supplier)
         }
     }
 

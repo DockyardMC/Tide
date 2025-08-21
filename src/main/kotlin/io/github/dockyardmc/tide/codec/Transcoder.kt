@@ -1,4 +1,4 @@
-package io.github.dockyardmc.tide
+package io.github.dockyardmc.tide.codec
 
 //the coder is WHAT? 🏳️‍⚧️🏳️‍⚧️🏳️‍⚧️
 interface Transcoder<T> {
@@ -88,7 +88,7 @@ interface Transcoder<T> {
     interface VirtualMap<T> {
         fun getKeys(): Collection<String>
         fun hasValue(key: String)
-        fun getValue(key: String)
+        fun getValue(key: String): T
 
         val size get() = getKeys().size
         val isEmpty get() = getKeys().isEmpty()

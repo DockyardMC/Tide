@@ -1,4 +1,4 @@
-package io.github.dockyardmc.tide
+package io.github.dockyardmc.tide.stream
 
 import io.netty.buffer.ByteBuf
 

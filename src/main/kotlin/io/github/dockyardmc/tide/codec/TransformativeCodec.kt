@@ -1,4 +1,4 @@
-package io.github.dockyardmc.tide
+package io.github.dockyardmc.tide.codec
 
 data class TransformativeCodec<T, S>(val inner: Codec<T>, val to: (T) -> S, val from: (S) -> T) : Codec<S> {
 
