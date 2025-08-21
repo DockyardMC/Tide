@@ -1,5 +1,7 @@
 package io.github.dockyardmc.tide.codec
 
+import io.github.dockyardmc.tide.transcoder.Transcoder
+
 class MapCodec<K, V>(val keyCodec: Codec<K>, val valueCodec: Codec<V>) : Codec<Map<K, V>> {
 
     override fun <D> encode(transcoder: Transcoder<D>, value: Map<K, V>): D {

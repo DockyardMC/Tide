@@ -1,5 +1,7 @@
 package io.github.dockyardmc.tide.codec
 
+import io.github.dockyardmc.tide.transcoder.Transcoder
+
 class DefaultCodec<T>(val inner: Codec<T>, val default: T) : Codec<T> {
 
     override fun <D> encode(transcoder: Transcoder<D>, value: T): D {

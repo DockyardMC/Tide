@@ -1,4 +1,4 @@
-package io.github.dockyardmc.tide.codec
+package io.github.dockyardmc.tide.transcoder
 
 //the coder is WHAT? 🏳️‍⚧️🏳️‍⚧️🏳️‍⚧️
 interface Transcoder<T> {
@@ -33,6 +33,7 @@ interface Transcoder<T> {
     fun emptyList() = encodeList(0).build()
 
     fun encodeMap(): VirtualMapBuilder<T>
+
     fun decodeMap(value: T): VirtualMap<T>
     fun emptyMap() = encodeMap().build()
 
@@ -78,8 +79,6 @@ interface Transcoder<T> {
         return longs.toLongArray()
     }
 
-    fun <D> convertTo(coder: Transcoder<D>, value: T): D
-
     interface ListBuilder<T> {
         fun add(value: T): ListBuilder<T>
         fun build(): T
@@ -87,7 +86,7 @@ interface Transcoder<T> {
 
     interface VirtualMap<T> {
         fun getKeys(): Collection<String>
-        fun hasValue(key: String)
+        fun hasValue(key: String): Boolean
         fun getValue(key: String): T
 
         val size get() = getKeys().size

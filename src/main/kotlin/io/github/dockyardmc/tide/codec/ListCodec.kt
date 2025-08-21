@@ -1,5 +1,7 @@
 package io.github.dockyardmc.tide.codec
 
+import io.github.dockyardmc.tide.transcoder.Transcoder
+
 class ListCodec<T>(val inner: Codec<T>) : Codec<List<T>> {
 
     override fun <D> encode(transcoder: Transcoder<D>, value: List<T>): D {

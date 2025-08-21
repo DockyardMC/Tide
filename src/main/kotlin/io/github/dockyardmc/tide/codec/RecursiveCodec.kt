@@ -1,5 +1,7 @@
 package io.github.dockyardmc.tide.codec
 
+import io.github.dockyardmc.tide.transcoder.Transcoder
+
 class RecursiveCodec<T>(self: (Codec<T>) -> Codec<T>) : Codec<T> {
 
     val delegate = self.invoke(this)

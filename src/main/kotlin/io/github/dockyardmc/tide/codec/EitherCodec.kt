@@ -1,5 +1,6 @@
 package io.github.dockyardmc.tide.codec
 
+import io.github.dockyardmc.tide.transcoder.Transcoder
 import io.github.dockyardmc.tide.types.Either
 
 class EitherCodec<L, R>(val leftCodec: Codec<L>, val rightCodec: Codec<R>) : Codec<Either<L, R>> {

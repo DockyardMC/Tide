@@ -1,5 +1,7 @@
 package io.github.dockyardmc.tide.codec
 
+import io.github.dockyardmc.tide.transcoder.Transcoder
+
 class ForwardRefCodec<T>(delegateFunc: () -> Codec<T>) : Codec<T> {
     private val delegate = delegateFunc.invoke()
 

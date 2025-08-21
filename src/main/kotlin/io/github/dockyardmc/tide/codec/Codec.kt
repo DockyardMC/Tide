@@ -1,5 +1,6 @@
 package io.github.dockyardmc.tide.codec
 
+import io.github.dockyardmc.tide.transcoder.Transcoder
 import io.github.dockyardmc.tide.types.Either
 import java.util.*
 
@@ -26,6 +27,9 @@ interface Codec<T> {
     fun default(default: T): Codec<T> {
         return DefaultCodec<T>(this, default)
     }
+
+    class EncodingException(override val message: String) : Exception()
+    class DecodingException(override val message: String) : Exception()
 
     companion object {
         val BOOLEAN: Codec<Boolean> = PrimitiveCodec(
