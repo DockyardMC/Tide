@@ -19,6 +19,39 @@ interface StructCodec<R> : Codec<R> {
     companion object {
         const val INLINE = "_inline_"
 
+        fun <R> of(new: () -> R): StructCodec<R> {
+            return object : StructCodec<R> {
+
+                override fun <T> encodeToMap(transcoder: Transcoder<T>, value: R, map: Transcoder.VirtualMapBuilder<T>): T {
+                    return transcoder.emptyMap()
+                }
+
+                override fun <T> decodeFromMap(transcoder: Transcoder<T>, map: Transcoder.VirtualMap<T>): R {
+                    return new.invoke()
+                }
+
+            }
+        }
+
+        fun <P1, R> of(
+            name1: String, codec1: Codec<P1>, getter1: (R) -> P1,
+            new: (P1) -> R
+        ): StructCodec<R> {
+            return object : StructCodec<R> {
+
+                override fun <T> encodeToMap(transcoder: Transcoder<T>, value: R, map: Transcoder.VirtualMapBuilder<T>): T {
+                    put(transcoder, codec1, map, name1, getter1.invoke(value))
+                    return map.build()
+                }
+
+                override fun <T> decodeFromMap(transcoder: Transcoder<T>, map: Transcoder.VirtualMap<T>): R {
+                    val result1 = get(transcoder, codec1, name1, map)
+                    return new.invoke(result1)
+                }
+
+            }
+        }
+
         fun <P1, P2, R> of(
             name1: String, codec1: Codec<P1>, getter1: (R) -> P1,
             name2: String, codec2: Codec<P2>, getter2: (R) -> P2,
@@ -73,10 +106,18 @@ interface StructCodec<R> : Codec<R> {
                 if (result.isFailure && codec is DefaultCodec<*>) {
                     return codec.default as T
                 }
+                if (result.isFailure && codec is OptionalCodec<*>) {
+                    return null as T
+                }
+                return result.getOrThrow() as T
             }
 
             if (codec is DefaultCodec<*> && !map.hasValue(key)) {
                 return codec.default as T
+            }
+
+            if (codec is OptionalCodec<*> && !map.hasValue(key)) {
+                return null as T
             }
 
             return codec.decode(transcoder, map.getValue(key))
