@@ -16,7 +16,7 @@ interface Codec<T> {
         return ListCodec<T>(this)
     }
 
-    fun <V> mapValue(valueCodec: Codec<V>): Codec<Map<T, V>> {
+    fun <V> mapTo(valueCodec: Codec<V>): Codec<Map<T, V>> {
         return MapCodec<T, V>(this, valueCodec)
     }
 
