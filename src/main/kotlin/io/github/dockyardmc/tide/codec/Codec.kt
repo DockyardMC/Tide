@@ -2,6 +2,7 @@ package io.github.dockyardmc.tide.codec
 
 import io.github.dockyardmc.tide.transcoder.Transcoder
 import io.github.dockyardmc.tide.types.Either
+import io.netty.buffer.ByteBuf
 import java.util.*
 
 interface Codec<T> {
@@ -76,6 +77,8 @@ interface Codec<T> {
             { transcoder, value -> transcoder.encodeByteArray(value) },
             { transcoder, value -> transcoder.decodeByteArray(value) }
         )
+
+        val BYTE_BUFFER: Codec<ByteBuf> = BYTE_ARRAY.transform({ from -> from.toByteBuf() }, { to -> to.toByteArraySafe() })
 
         val INT_ARRAY: Codec<IntArray> = PrimitiveCodec(
             { transcoder, value -> transcoder.encodeIntArray(value) },
