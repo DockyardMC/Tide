@@ -176,10 +176,10 @@ interface StreamCodec<T> {
                 val leastSignificant = LONG.read(buffer)
                 return UUID(mostSignificant, leastSignificant)
             }
+        }
 
-            fun <T> recursive(self: (StreamCodec<T>) -> StreamCodec<T>): RecursiveStreamCodec<T> {
-                return RecursiveStreamCodec<T>(self)
-            }
+        fun <T> recursive(self: (StreamCodec<T>) -> StreamCodec<T>): RecursiveStreamCodec<T> {
+            return RecursiveStreamCodec<T>(self)
         }
 
         val UUID_STRING = STRING.transform<UUID>({ uuid -> uuid.toString() }, { string -> java.util.UUID.fromString(string) })
