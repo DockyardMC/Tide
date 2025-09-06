@@ -1,6 +1,8 @@
 package io.github.dockyardmc.tide.stream
 
+import io.github.dockyardmc.tide.codec.Codec
 import io.github.dockyardmc.tide.codec.CodecUtils
+import io.github.dockyardmc.tide.codec.RecursiveCodec
 import io.netty.buffer.ByteBuf
 import java.util.*
 
@@ -27,6 +29,7 @@ interface StreamCodec<T> {
     fun list(): ListStreamCodec<T> {
         return ListStreamCodec<T>(this)
     }
+
 
     companion object {
         val UNIT = object : StreamCodec<Unit> {
@@ -172,6 +175,10 @@ interface StreamCodec<T> {
                 val mostSignificant = LONG.read(buffer)
                 val leastSignificant = LONG.read(buffer)
                 return UUID(mostSignificant, leastSignificant)
+            }
+
+            fun <T> recursive(self: (StreamCodec<T>) -> StreamCodec<T>): RecursiveStreamCodec<T> {
+                return RecursiveStreamCodec<T>(self)
             }
         }
 
