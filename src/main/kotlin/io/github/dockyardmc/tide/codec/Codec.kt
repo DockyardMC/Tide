@@ -29,6 +29,18 @@ interface Codec<T> {
         return DefaultCodec<T>(this, default)
     }
 
+    fun <R> union(serializers: (T) -> StructCodec<out R>, keyFunc: (R) -> T): StructCodec<R> {
+        return union("type", this, serializers, keyFunc)
+    }
+
+    fun <R> union(keyCodec: Codec<T>, serializers: (T) -> StructCodec<out R>, keyFunc: (R) -> T): StructCodec<R> {
+        return union("type", keyCodec, serializers, keyFunc)
+    }
+
+    fun <R> union(keyFiled: String, keyCodec: Codec<T>, serializers: (T) -> StructCodec<out R>, keyFunc: (R) -> T): StructCodec<R> {
+        return UnionCodec<T, R>(keyFiled, keyCodec, serializers, keyFunc)
+    }
+
     class EncodingException(override val message: String) : Exception()
     class DecodingException(override val message: String) : Exception()
 

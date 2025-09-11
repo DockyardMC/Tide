@@ -1,8 +1,6 @@
 package io.github.dockyardmc.tide.stream
 
-import io.github.dockyardmc.tide.codec.Codec
 import io.github.dockyardmc.tide.codec.CodecUtils
-import io.github.dockyardmc.tide.codec.RecursiveCodec
 import io.netty.buffer.ByteBuf
 import java.util.*
 
@@ -28,6 +26,10 @@ interface StreamCodec<T> {
 
     fun list(): ListStreamCodec<T> {
         return ListStreamCodec<T>(this)
+    }
+
+    fun <R, TR : R> union(serializers: (T) -> StreamCodec<out TR>, keyFunc: (R) -> T): UnionStreamCodec<TR, T, TR> {
+        return UnionStreamCodec(this, keyFunc, serializers)
     }
 
 
