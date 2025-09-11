@@ -951,9 +951,14 @@ interface StructCodec<R> : Codec<R> {
         private fun <D, T> put(transcoder: Transcoder<D>, codec: Codec<T>, map: Transcoder.VirtualMapBuilder<D>, key: String, value: T): D {
 
             if (key == INLINE) {
-                val encodeCodec: Codec<T> = if (codec is OptionalCodec<*>) codec.inner as Codec<T> else if (codec is DefaultCodec<T>) codec.inner else codec
+                val encodeCodec: Codec<T> = when (codec) {
+                    is OptionalCodec<*> -> codec.inner as Codec<T>
+                    is DefaultCodec<*> -> codec.inner as Codec<T>
+                    is RecursiveCodec<*> -> codec.self as Codec<T>
+                    else -> codec
+                }
                 if (encodeCodec !is StructCodec<T>) {
-                    throw Codec.EncodingException("provided codec for $key is not StructCodec")
+                    throw Codec.EncodingException("Provided codec for inline $key is not StructCodec")
                 }
 
                 return encodeCodec.encodeToMap(transcoder, value, map)
@@ -968,9 +973,14 @@ interface StructCodec<R> : Codec<R> {
         private fun <D, T> get(transcoder: Transcoder<D>, codec: Codec<T>, key: String, map: Transcoder.VirtualMap<D>): T {
 
             if (key == INLINE) {
-                val decodeCodec = if (codec is OptionalCodec<*>) codec.inner else if (codec is DefaultCodec<*>) codec.inner else codec
+                val decodeCodec: Codec<T> = when (codec) {
+                    is OptionalCodec<*> -> codec.inner as Codec<T>
+                    is DefaultCodec<*> -> codec.inner as Codec<T>
+                    is RecursiveCodec<*> -> codec.self as Codec<T>
+                    else -> codec
+                }
                 if (decodeCodec !is StructCodec<*>) {
-                    throw Codec.DecodingException("provided codec for $key is not StructCodec")
+                    throw Codec.EncodingException("Provided codec for inline $key is not StructCodec")
                 }
 
                 val result = runCatching {
