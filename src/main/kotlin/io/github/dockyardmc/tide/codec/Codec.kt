@@ -105,8 +105,8 @@ interface Codec<T> {
             return EitherCodec(leftCodec, rightCodec)
         }
 
-        fun <T> recursive(self: (Codec<T>) -> Codec<T>): RecursiveCodec<T> {
-            return RecursiveCodec<T>(self)
+        fun <T> recursive(self: (Codec<T>) -> Codec<T>): Codec<T> {
+            return RecursiveCodec<T>(self).delegate
         }
 
         fun <T> forwardRef(supplier: () -> Codec<T>): ForwardRefCodec<T> {
