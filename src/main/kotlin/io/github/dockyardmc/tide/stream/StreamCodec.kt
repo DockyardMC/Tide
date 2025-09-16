@@ -32,6 +32,9 @@ interface StreamCodec<T> {
         return UnionStreamCodec(this, keyFunc, serializers)
     }
 
+    fun wrapped(): WrappedStreamCodec<T> {
+        return WrappedStreamCodec<T>(this)
+    }
 
     companion object {
         val UNIT = object : StreamCodec<Unit> {
@@ -177,6 +180,23 @@ interface StreamCodec<T> {
                 val mostSignificant = LONG.read(buffer)
                 val leastSignificant = LONG.read(buffer)
                 return UUID(mostSignificant, leastSignificant)
+            }
+        }
+
+        val LONG_ARRAY = object : StreamCodec<LongArray> {
+
+            override fun write(buffer: ByteBuf, value: LongArray) {
+                VAR_INT.write(buffer, value.size)
+                value.forEach { long -> buffer.writeLong(long) }
+            }
+
+            override fun read(buffer: ByteBuf): LongArray {
+                val size = VAR_INT.read(buffer)
+                val longs = mutableListOf<Long>()
+                for (i in 0 until size) {
+                    longs.add(buffer.readLong())
+                }
+                return longs.toLongArray()
             }
         }
 
